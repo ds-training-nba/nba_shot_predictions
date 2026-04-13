@@ -1,22 +1,9 @@
-import pandas as pd
-import seaborn as sns
-from app.config import PLAYER_CHOICE
-file = 'data/orig/shots.csv'
-df = pd.read_csv(file)
-
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-chosen_player_matrix = None
+from app.data_providers import filtered_shots_dataframe
 
-for name in PLAYER_CHOICE:
-    current_matrix = df['Player Name'] == name
-    if chosen_player_matrix is None:
-        chosen_player_matrix = current_matrix
-    else:
-        chosen_player_matrix = chosen_player_matrix | current_matrix
-
-df_player_choice = df[chosen_player_matrix]
-
+df_player_choice = filtered_shots_dataframe()
 g = sns.FacetGrid(df_player_choice, col="Player Name", col_wrap=4, height=3)
 
 g.map_dataframe(

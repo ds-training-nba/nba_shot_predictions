@@ -53,3 +53,11 @@ PLAYER_CHOICE = [
     "Pau Gasol",
     "Luka Doncic"
 ]
+
+TARGET_VARIABLE = "Shot Made Flag"
+
+EXPLANATORY_CANDIDATES_NUMERICAL = [
+    "Shot Distance",
+    "Period",
+    "Minutes Remaining"
+]
