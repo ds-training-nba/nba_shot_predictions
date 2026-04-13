@@ -15,11 +15,11 @@ Copy NBA Shot Locations 97-2019.csv to data/orig/shots.csv
 
 ## scripts
 
-Always run from repo root.
-(.venv) nba_shot_predictions$ python scriptname.py
+Always run from repo root. For imports to work properly, use "module" type of calling: 
+(.venv) nba_shot_predictions$ python -m scripts.scriptname
 
 ### Existing Scripts
 
-(.venv) nba_shot_predictions$ python scripts/pandas_test.py
+(.venv) nba_shot_predictions$ python -m scripts.pandas_test
 
 
