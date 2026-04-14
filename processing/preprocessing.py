@@ -14,13 +14,13 @@ def add_shot_main_action_type_column(df: pd.DataFrame):
             if keyword in val:
                 return keyword
         return 'Other'
-    df['Main Action Type'] = df['Action Type'].apply(main_category)
+    df['MAIN_ACTION_TYPE'] = df['ACTION_TYPE'].apply(main_category)
     return df
 
 def add_angle_column(df: pd.DataFrame):
     def angle(row):
-        x = row['X Location']
-        y = row['Y Location']
+        x = row['LOC_X']
+        y = row['LOC_Y']
         return 180 * atan2(x,y)/np.pi
     def angle_sector(angle_in_deg):
         # front
@@ -34,6 +34,6 @@ def add_angle_column(df: pd.DataFrame):
             return 2
         # directly behind the basket
         return 3
-    df['Angle'] = df.apply(angle,axis=1)
-    df['Angle Sector'] = df['Angle'].apply(angle_sector)
+    df['ANGLE'] = df.apply(angle,axis=1)
+    df['ANGLE_SECTOR'] = df['ANGLE'].apply(angle_sector)
     return df

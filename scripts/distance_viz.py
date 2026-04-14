@@ -10,13 +10,13 @@ from processing.preprocessing import shot_accuracy_by_fields, add_shot_main_acti
 # main
 df = main_dataframe()
 
-df_accuracy = shot_accuracy_by_fields(df, ['Shot Zone Range', 'Player Name']).reset_index()
+df_accuracy = shot_accuracy_by_fields(df, ['SHOT_ZONE_RANGE', 'PLAYER_NAME']).reset_index()
 
-g = sns.FacetGrid(df_accuracy, col="Shot Zone Range", col_wrap=4, height=3)
+g = sns.FacetGrid(df_accuracy, col="SHOT_ZONE_RANGE", col_wrap=4, height=3)
 
 # g.map_dataframe(
 #     sns.barplot,
-#     x="Player Name",
+#     x='PLAYER_NAME',
 #     y=TARGET_VARIABLE
 # )
 
