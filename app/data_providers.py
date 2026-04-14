@@ -5,6 +5,11 @@ from app.config import PLAYER_CHOICE
 from processing.preprocessing import add_shot_main_action_type_column, add_angle_column
 
 def get_shots_dataframe(use_small = False):
+    """
+    Returns the raw dataframe (default: from huggingface, use_small: local small csv)
+    :param use_small:  use the small version for better performance when testing complicated calculations
+    :return: pd.DataFrame
+    """
     if use_small:
         return pd.read_csv('data/small/shots.csv')
 
@@ -15,6 +20,11 @@ def get_shots_dataframe(use_small = False):
     return ds['train'].to_pandas()
 
 def filtered_shots_dataframe(use_small = False):
+    """
+    Returns the dataframe filtered for our selected 20 players
+    :param use_small: use the small version for better performance when testing complicated calculations
+    :return: pd.DataFrame
+    """
     df = get_shots_dataframe(use_small)
 
 
@@ -30,6 +40,11 @@ def filtered_shots_dataframe(use_small = False):
     return df[chosen_player_matrix]
 
 def main_dataframe(use_small = False):
+    """
+        Returns the main dataframe to work with. Containing added columns and so on.
+        :param use_small: use the small version for better performance when testing complicated calculations
+        :return: pd.DataFrame
+    """
     df = filtered_shots_dataframe(use_small=use_small)
     df = add_shot_main_action_type_column(df)
     df = add_angle_column(df)
