@@ -1,14 +1,18 @@
-from app.config import PLAYER_CHOICE
+from datasets import load_dataset
 import pandas as pd
 
+from app.config import PLAYER_CHOICE
 from processing.preprocessing import add_shot_main_action_type_column, add_angle_column
 
-
 def get_shots_dataframe(use_small = False):
+    if use_small:
+        return pd.read_csv('data/small/shots.csv')
 
-    file = 'data/small/shots.csv' if use_small else 'data/orig/shots.csv'
-    df = pd.read_csv(file)
-    return df
+    ds = load_dataset(
+        "ds-training-nba/nba_shot_data",
+        data_files={"train": "raw_merged/merged_dataset.parquet"}
+    )
+    return ds['train'].to_pandas()
 
 def filtered_shots_dataframe(use_small = False):
     df = get_shots_dataframe(use_small)
@@ -17,7 +21,7 @@ def filtered_shots_dataframe(use_small = False):
     chosen_player_matrix = None
 
     for name in PLAYER_CHOICE:
-        current_matrix = df['Player Name'] == name
+        current_matrix = df['PLAYER_NAME'] == name
         if chosen_player_matrix is None:
             chosen_player_matrix = current_matrix
         else:

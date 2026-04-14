@@ -57,9 +57,9 @@ PLAYER_CHOICE = [
 TARGET_VARIABLE = "Shot Made Flag"
 
 EXPLANATORY_CANDIDATES_NUMERICAL = [
-    "Shot Distance",
-    "Period",
-    "Minutes Remaining",
-    "Angle",
-    "Angle Sector",
+    "SHOT_DISTANCE",
+    "PERIOD_x",
+    "MINUTES_REMAINING",
+    "ANGLE",
+    "ANGLE_SECTOR",
 ]

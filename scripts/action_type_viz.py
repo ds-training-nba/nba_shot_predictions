@@ -10,29 +10,29 @@ from processing.preprocessing import shot_accuracy_by_fields, add_shot_main_acti
 # main
 df = main_dataframe()
 
-df_accuracy = shot_accuracy_by_fields(df, ['Main Action Type', 'Player Name']).reset_index()
+df_accuracy = shot_accuracy_by_fields(df, ['MAIN_ACTION_TYPE', 'PLAYER_NAME']).reset_index()
 
-# g = sns.FacetGrid(df_accuracy, col="Main Action Type", col_wrap=4, height=3)
+# g = sns.FacetGrid(df_accuracy, col="MAIN_ACTION_TYPE", col_wrap=4, height=3)
 #
 # g.map_dataframe(
 #     sns.barplot,
-#     x="Player Name",
+#     x='PLAYER_NAME',
 #     y=TARGET_VARIABLE
 # )
 
-# g = sns.FacetGrid(df_accuracy, col="Player Name", col_wrap=4, height=3)
+# g = sns.FacetGrid(df_accuracy, col='PLAYER_NAME', col_wrap=4, height=3)
 #
 # g.map_dataframe(
 #     sns.barplot,
-#     x="Main Action Type",
+#     x="MAIN_ACTION_TYPE",
 #     y=TARGET_VARIABLE
 # )
 
-g = sns.FacetGrid(df, col="Player Name", col_wrap=4, height=3)
+g = sns.FacetGrid(df, col='PLAYER_NAME', col_wrap=4, height=3)
 
 g.map_dataframe(
     sns.histplot,
-    x="Main Action Type",
+    x="MAIN_ACTION_TYPE",
     stat="probability"
 )
 

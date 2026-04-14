@@ -6,7 +6,7 @@ df = pd.read_csv(file)
 
 last_entries = {}
 for player_name in ESPN_TOP_25:
-    df_player = df[df['Player Name']  == player_name]
+    df_player = df[df['PLAYER_NAME']  == player_name]
     #print(player_name, ': Count ', len(df_player), ' last_entry ', df_player['Game Date'].max())
     last_entries[player_name] = df_player['Game Date'].max()
 
