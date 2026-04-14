@@ -1,3 +1,6 @@
+from math import atan2
+
+import numpy as np
 import pandas as pd
 from app.config import TARGET_VARIABLE
 def shot_accuracy_by_fields(df: pd.DataFrame, fields):
@@ -11,6 +14,26 @@ def add_shot_main_action_type_column(df: pd.DataFrame):
             if keyword in val:
                 return keyword
         return 'Other'
-        # if 'Dunk'
     df['Main Action Type'] = df['Action Type'].apply(main_category)
+    return df
+
+def add_angle_column(df: pd.DataFrame):
+    def angle(row):
+        x = row['X Location']
+        y = row['Y Location']
+        return 180 * atan2(x,y)/np.pi
+    def angle_sector(angle_in_deg):
+        # front
+        if abs(angle_in_deg) <= 45:
+            return 0
+        # side
+        if abs(angle_in_deg) > 45 and abs(angle_in_deg) <= 90:
+            return 1
+        # extreme side (behind the basket line)
+        if abs(angle_in_deg) > 90 and abs(angle_in_deg) < 135:
+            return 2
+        # directly behind the basket
+        return 3
+    df['Angle'] = df.apply(angle,axis=1)
+    df['Angle Sector'] = df['Angle'].apply(angle_sector)
     return df

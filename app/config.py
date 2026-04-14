@@ -59,5 +59,7 @@ TARGET_VARIABLE = "Shot Made Flag"
 EXPLANATORY_CANDIDATES_NUMERICAL = [
     "Shot Distance",
     "Period",
-    "Minutes Remaining"
+    "Minutes Remaining",
+    "Angle",
+    "Angle Sector",
 ]

@@ -1,7 +1,7 @@
 from app.config import PLAYER_CHOICE
 import pandas as pd
 
-from processing.preprocessing import add_shot_main_action_type_column
+from processing.preprocessing import add_shot_main_action_type_column, add_angle_column
 
 
 def get_shots_dataframe(use_small = False):
@@ -28,4 +28,5 @@ def filtered_shots_dataframe(use_small = False):
 def main_dataframe(use_small = False):
     df = filtered_shots_dataframe(use_small=use_small)
     df = add_shot_main_action_type_column(df)
+    df = add_angle_column(df)
     return df
