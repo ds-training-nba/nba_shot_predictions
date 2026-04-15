@@ -47,3 +47,10 @@ def add_is_home_column(df: pd.DataFrame):
 
     df['IS_HOME'] = df.apply(is_home, axis=1)
     return df
+
+def add_opponent_interfered_column(df: pd.DataFrame):
+    def opponent_interfered(row):
+        return row['PLAYER1_TEAM_ABBREVIATION'] == row['PLAYER2_TEAM_ABBREVIATION'] and (len(row['PLAYER2_TEAM_ABBREVIATION']) > 0)
+
+    df['OPPONENT_INTERFERED'] = df.apply(opponent_interfered, axis=1)
+    return df
