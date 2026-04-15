@@ -29,11 +29,12 @@ def add_angle_column(df: pd.DataFrame):
         # side
         if abs(angle_in_deg) > 45 and abs(angle_in_deg) <= 90:
             return 1
-        # extreme side (behind the basket line)
+        # extreme side (far behind the basket line)
         if abs(angle_in_deg) > 90 and abs(angle_in_deg) < 135:
             return 2
         # directly behind the basket
         return 3
     df['ANGLE'] = df.apply(angle,axis=1)
     df['ANGLE_SECTOR'] = df['ANGLE'].apply(angle_sector)
+    df['ABS_ANGLE'] = df['ANGLE'].apply(lambda val: abs(val))
     return df

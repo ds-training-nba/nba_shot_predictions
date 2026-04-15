@@ -12,7 +12,7 @@ df = main_dataframe()
 
 df_accuracy = shot_accuracy_by_fields(df, ['SHOT_ZONE_RANGE','ANGLE_SECTOR']).reset_index()
 
-g = sns.FacetGrid(df_accuracy, col='SHOT_ZONE_RANGE', col_wrap=4, height=3)
+g = sns.FacetGrid(df_accuracy, col='SHOT_ZONE_RANGE', col_wrap=5, height=3)
 
 g.map_dataframe(
     sns.barplot,
