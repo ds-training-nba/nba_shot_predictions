@@ -38,3 +38,12 @@ def add_angle_column(df: pd.DataFrame):
     df['ANGLE_SECTOR'] = df['ANGLE'].apply(angle_sector)
     df['ABS_ANGLE'] = df['ANGLE'].apply(lambda val: abs(val))
     return df
+
+def add_is_home_column(df: pd.DataFrame):
+    def is_home(row):
+        player_team = row['PLAYER1_TEAM_ABBREVIATION']
+        home_team = row['HTM']
+        return 1 if home_team == player_team else 0
+
+    df['IS_HOME'] = df.apply(is_home, axis=1)
+    return df
