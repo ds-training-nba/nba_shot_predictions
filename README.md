@@ -9,9 +9,8 @@ Then:
 `pip install -r requirements.txt`
 
 ### CSV Data
-Original CSV Data are not committed to the repo. Copy them by hand to the ignored dir: data/orig.
-
-Copy NBA Shot Locations 97-2019.csv to data/orig/shots.csv
+We stopped working with csv data directly and now host our raw data on Huggingface in 
+parquet format. Accessing the raw data can be done via the functions in app/data_providers.py.
 
 ## scripts
 
