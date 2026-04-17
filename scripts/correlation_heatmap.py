@@ -10,13 +10,12 @@ df_player_choice = df_player_choice[df_player_choice['SHOT_ZONE_RANGE'] == "24+ 
 print(df_player_choice.describe())
 print(df_player_choice.head(200).tail(30))
 df_player_choice = df_player_choice[colums]
-# g = sns.heatmap(df_player_choice.corr())
+g = sns.heatmap(df_player_choice.corr(), annot=True)
+plt.show()
+
+# import plotly.express as px
 #
-# plt.show()
-
-import plotly.express as px
-
-
-print(df_player_choice.corr())
-fig = px.imshow(df_player_choice.corr())
-fig.show()
+#
+# print(df_player_choice.corr())
+# fig = px.imshow(df_player_choice.corr())
+# fig.show()
