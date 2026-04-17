@@ -9,11 +9,14 @@ def shot_accuracy_by_fields(df: pd.DataFrame, fields):
 
 def add_shot_main_action_type_column(df: pd.DataFrame):
     def main_category(val):
+        other_str = 'Other'
+        if not isinstance(val, str):
+            return other_str
         keywords = ['Dunk', 'Layup', 'Hook', 'Jump']
         for keyword in keywords:
             if keyword in val:
                 return keyword
-        return 'Other'
+        return other_str
     df['MAIN_ACTION_TYPE'] = df['ACTION_TYPE'].apply(main_category)
     return df
 
