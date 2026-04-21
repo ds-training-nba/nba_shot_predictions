@@ -1,7 +1,7 @@
 from datasets import load_dataset
 import pandas as pd
 
-from app.config import PLAYER_CHOICE
+from app.config import PLAYER_CHOICE, CLEAN_SOURCE_COLUMNS
 from processing.preprocessing import add_shot_main_action_type_column, add_angle_column, add_is_home_column, \
     add_opponent_interfered_column
 
@@ -53,3 +53,7 @@ def main_dataframe(use_small = False):
     df = add_is_home_column(df)
     df = add_opponent_interfered_column(df)
     return df
+
+def clean_source_dataframe(use_small = False):
+    main_df = get_shots_dataframe(use_small)
+    return main_df[CLEAN_SOURCE_COLUMNS]

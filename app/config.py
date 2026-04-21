@@ -66,3 +66,22 @@ EXPLANATORY_CANDIDATES_NUMERICAL = [
     "IS_HOME",
     "OPPONENT_INTERFERED"
 ]
+
+# These are the columns that must not contain missing values, because they are taken as a source for our
+# features
+CLEAN_SOURCE_COLUMNS = [
+    "SHOT_DISTANCE",
+    "SHOT_ZONE_RANGE",
+    "SHOT_ZONE_BASIC",
+    "SHOT_ZONE_AREA",
+    "LOC_X",
+    "LOC_Y",
+    "ACTION_TYPE",
+    "HTM",
+    "PLAYER1_TEAM_ABBREVIATION",
+    "PLAYER_ID",
+    "scoreHome",
+    "scoreAway",
+    TARGET_VARIABLE,
+]
+
