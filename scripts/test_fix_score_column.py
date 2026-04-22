@@ -13,6 +13,7 @@ limit_memory(22*1024 * 1024 * 1024)
 # configuring pipeline
 request = DataFrameRequest(
     add_computed = True,
+    apply_preprocessing = True,
     filter_pre_encoding_columns = False,
     encode_for_model = False,
     filter_top_players=False,
