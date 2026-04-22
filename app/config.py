@@ -1,3 +1,5 @@
+
+
 ESPN_TOP_25 = [
     'LeBron James',
     'Kobe Bryant',
@@ -84,4 +86,10 @@ CLEAN_SOURCE_COLUMNS = [
     "scoreAway",
     TARGET_VARIABLE,
 ]
+
+EXPLANATORY_VARIABLES_PRE_ENCODING = [
+    "PLAYER_ID",
+    "IS_HOME",
+]
+
 

@@ -1,9 +1,12 @@
+import dataclasses
+
 from datasets import load_dataset
 import pandas as pd
 
-from app.config import PLAYER_CHOICE, CLEAN_SOURCE_COLUMNS
-from processing.preprocessing import add_shot_main_action_type_column, add_angle_column, add_is_home_column, \
-    add_opponent_interfered_column
+from processing.compute_columns import add_computed_feature_columns, add_is_home_column, add_opponent_interfered_column, \
+    add_angle_column, add_shot_main_action_type_column
+from processing.encoding import encode_for_model
+from processing.filtering import filter_clean_source_columns, filter_pre_encoding_columns, filter_for_players
 
 
 def get_shots_dataframe(use_small = False):
@@ -21,25 +24,6 @@ def get_shots_dataframe(use_small = False):
     )
     return ds['train'].to_pandas()
 
-def filtered_shots_dataframe(use_small = False):
-    """
-    Returns the dataframe filtered for our selected 20 players
-    :param use_small: use the small version for better performance when testing complicated calculations
-    :return: pd.DataFrame
-    """
-    df = get_shots_dataframe(use_small)
-
-
-    chosen_player_matrix = None
-
-    for name in PLAYER_CHOICE:
-        current_matrix = df['PLAYER_NAME'] == name
-        if chosen_player_matrix is None:
-            chosen_player_matrix = current_matrix
-        else:
-            chosen_player_matrix = chosen_player_matrix | current_matrix
-
-    return df[chosen_player_matrix]
 
 def main_dataframe(use_small = False):
     """
@@ -55,5 +39,56 @@ def main_dataframe(use_small = False):
     return df
 
 def clean_source_dataframe(use_small = False):
+    """
+        Returns only the source columns to use. The goal is that this dataframe does not contain any missing values.
+        :param use_small: use the small version for better performance when testing complicated calculations
+        :return: pd.DataFrame
+    """
     main_df = get_shots_dataframe(use_small)
-    return main_df[CLEAN_SOURCE_COLUMNS]
+    return filter_clean_source_columns(main_df)
+
+@dataclasses.dataclass
+class DataFrameRequest:
+    model_to_encode_for: str = ""
+    use_small: bool = False
+    filter_clean: bool = True
+    add_computed: bool = True
+    filter_pre_encoding_columns: bool = True
+    encode_for_model: bool = True
+    filter_top_players: bool = True
+
+
+def provide_dataframe(request: DataFrameRequest):
+    """
+        Returns all the data for the model
+        :param request: define data source size and what processing is to be done
+        :return: pd.DataFrame
+    """
+    # base raw dataframe
+    df = get_shots_dataframe(request.use_small)
+    if request.filter_clean:
+        # only use clean source columns
+        df = filter_clean_source_columns(df)
+    if request.filter_top_players:
+        # only use clean source columns
+        df = filter_for_players(df)
+    if request.add_computed:
+        # computed/engineered features
+        df = add_computed_feature_columns(df)
+    if request.filter_pre_encoding_columns:
+        # cleanup columns before encoding
+        df = filter_pre_encoding_columns(df)
+    if request.encode_for_model:
+        # encode
+        df = encode_for_model(df, request.model_to_encode_for)
+    return df
+
+
+def filtered_shots_dataframe(use_small = False):
+    """
+    Returns the dataframe filtered for our selected 20 players
+    :param use_small: use the small version for better performance when testing complicated calculations
+    :return: pd.DataFrame
+    """
+    df = get_shots_dataframe(use_small)
+    return filter_for_players(df)

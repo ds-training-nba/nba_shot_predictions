@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from app.data_providers import filtered_shots_dataframe, main_dataframe
+from app.data_providers import main_dataframe, filtered_shots_dataframe
 from app.config import EXPLANATORY_CANDIDATES_NUMERICAL, TARGET_VARIABLE
 
 colums = EXPLANATORY_CANDIDATES_NUMERICAL + [TARGET_VARIABLE]
