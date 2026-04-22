@@ -72,6 +72,9 @@ EXPLANATORY_CANDIDATES_NUMERICAL = [
 # These are the columns that must not contain missing values, because they are taken as a source for our
 # features
 CLEAN_SOURCE_COLUMNS = [
+    "GAME_ID_x",
+    "GAME_EVENT_ID",
+    "SHOT_TYPE",
     "SHOT_DISTANCE",
     "SHOT_ZONE_RANGE",
     "SHOT_ZONE_BASIC",

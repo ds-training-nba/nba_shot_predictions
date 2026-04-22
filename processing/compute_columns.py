@@ -13,9 +13,41 @@ def add_is_home_column(df: pd.DataFrame):
     df['IS_HOME'] = df.apply(is_home, axis=1)
     return df
 
+def fill_team_scores_and_margin(df):
+    df = df.sort_values(["GAME_ID_x", "GAME_EVENT_ID"])
+
+    df["points"] = df["SHOT_TYPE"].map({
+        "1PT Free Throw": 1,
+        "2PT Field Goal": 2,
+        "3PT Field Goal": 3
+    })
+
+    df["pointsHome"] = df["points"].where((df["SHOT_MADE_FLAG"] == 1) & (df["IS_HOME"] == 1), 0)
+    df["pointsAway"] = df["points"].where((df["SHOT_MADE_FLAG"] == 1) & (df["IS_HOME"] == 0), 0)
+
+    df["scoreHome"] = df.groupby("GAME_ID_x")["pointsHome"].cumsum()
+    df["scoreAway"] = df.groupby("GAME_ID_x")["pointsAway"].cumsum()
+
+    df["scoreHomeBeforeShot"] = df.groupby("GAME_ID_x")["scoreHome"].shift(1).fillna(0)
+    df["scoreAwayBeforeShot"] = df.groupby("GAME_ID_x")["scoreAway"].shift(1).fillna(0)
+
+    df["scoreMargin"] = np.where(
+        df["IS_HOME"],
+        df["scoreHome"] - df["scoreAway"],
+        df["scoreAway"] - df["scoreHome"]
+    )
+
+    df["scoreMarginBeforeShot"] = np.where(
+        df["IS_HOME"],
+        df["scoreHomeBeforeShot"] - df["scoreAwayBeforeShot"],
+        df["scoreAwayBeforeShot"] - df["scoreHomeBeforeShot"]
+    )
+
+    return df
 
 COMPUTED_FEATURES_FUNCTIONS = [
-    add_is_home_column
+    add_is_home_column,
+    fill_team_scores_and_margin
 ]
 
 
@@ -69,34 +101,18 @@ def add_shot_main_action_type_column(df: pd.DataFrame):
     df['MAIN_ACTION_TYPE'] = df['ACTION_TYPE'].apply(main_category)
     return df
 
-def fill_team_scores_and_margin(df):
-    df = df.sort_values(["gameId", "GAME_EVENT_ID"])
-
-    df["points"] = df["SHOT_TYPE"].map({
-        "1PT Free Throw": 1,
-        "2PT Field Goal": 2,
-        "3PT Field Goal": 3
-    })
-
-    df["pointsHome"] = df["points"].where(df["SHOT_MADE_FLAG"] & (df["IS_HOME"] == 1), 0)
-    df["pointsAway"] = df["points"].where(df["SHOT_MADE_FLAG"] & (df["IS_HOME"] == 0), 0)
-
-    df["scoreHome"] = df.groupby("gameId")["pointsHome"].cumsum()
-    df["scoreAway"] = df.groupby("gameId")["pointsAway"].cumsum()
-
-    df["scoreHomeBeforeShot"] = df.groupby("gameId")["scoreHome"].shift(1).fillna(0)
-    df["scoreAwayBeforeShot"] = df.groupby("gameId")["scoreAway"].shift(1).fillna(0)
-
-    df["scoreMargin"] = np.where(
-        df["IS_HOME"],
-        df["scoreHome"] - df["scoreAway"],
-        df["scoreAway"] - df["scoreHome"]
-    )
-
-    df["scoreMarginBeforeShot"] = np.where(
-        df["IS_HOME"],
-        df["scoreHomeBeforeShot"] - df["scoreAwayBeforeShot"],
-        df["scoreAwayBeforeShot"] - df["scoreHomeBeforeShot"]
-    )
-
+def add_shifted_score_columns(df: pd.DataFrame):
+    df['SCORE_HOME_BT'] = 0
+    df['SCORE_AWAY_BT'] = 0
+    def shift_score(val):
+        other_str = 'Other'
+        if not isinstance(val, str):
+            return other_str
+        keywords = ['Dunk', 'Layup', 'Hook', 'Jump']
+        for keyword in keywords:
+            if keyword in val:
+                return keyword
+        return other_str
+    df['MAIN_ACTION_TYPE'] = df['ACTION_TYPE'].apply(main_category)
     return df
+
