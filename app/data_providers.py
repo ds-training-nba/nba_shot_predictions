@@ -7,7 +7,7 @@ from processing.compute_columns import add_computed_feature_columns, add_is_home
     add_angle_column, add_shot_main_action_type_column
 from processing.encoding import encode_for_model
 from processing.filtering import filter_clean_source_columns, filter_pre_encoding_columns, filter_for_players
-
+from processing.preprocessing import preprocess_fields
 
 def get_shots_dataframe(use_small = False):
     """
@@ -51,6 +51,7 @@ def clean_source_dataframe(use_small = False):
 class DataFrameRequest:
     model_to_encode_for: str = ""
     use_small: bool = False
+    apply_preprocessing: bool = True
     filter_clean: bool = True
     add_computed: bool = True
     filter_pre_encoding_columns: bool = True
@@ -66,6 +67,9 @@ def provide_dataframe(request: DataFrameRequest):
     """
     # base raw dataframe
     df = get_shots_dataframe(request.use_small)
+    if request.apply_preprocessing:
+        # Remove nans and duplicates
+        df = preprocess_fields(df)
     if request.filter_clean:
         # only use clean source columns
         df = filter_clean_source_columns(df)
