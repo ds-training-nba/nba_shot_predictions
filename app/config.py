@@ -83,15 +83,23 @@ CLEAN_SOURCE_COLUMNS = [
     "LOC_Y",
     "ACTION_TYPE",
     "HTM",
-    "PLAYER1_TEAM_ABBREVIATION",
+    "VTM",
+    "GAME_DATE",
+    "TEAM_ID",
+    "PLAYER1_TEAM_ABBREVIATION", # for IS_HOME
     "PLAYER_ID",
-    "scoreHome",
+    "scoreHome", # for score margin
     "scoreAway",
+    'shotResult', # consistency check
+    'MINUTES_REMAINING',
+    'SECONDS_REMAINING',
+    'clock',
     TARGET_VARIABLE,
 ]
 
 EXPLANATORY_VARIABLES_PRE_ENCODING = [
     "PLAYER_ID",
+    "MAIN_ACTION_TYPE",
     "IS_HOME",
 ]
 
