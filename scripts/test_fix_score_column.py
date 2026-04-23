@@ -9,7 +9,7 @@ def limit_memory(max_bytes):
     resource.setrlimit(resource.RLIMIT_AS, (max_bytes, max_bytes))
 
 # Limit to 10 GB (1024 * 1024 * 1024 bytes)
-limit_memory(22*1024 * 1024 * 1024)
+limit_memory(25*1024 * 1024 * 1024)
 # configuring pipeline
 request = DataFrameRequest(
     add_computed = True,
