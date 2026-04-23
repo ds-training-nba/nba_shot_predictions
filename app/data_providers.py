@@ -67,12 +67,13 @@ def provide_dataframe(request: DataFrameRequest):
     """
     # base raw dataframe
     df = get_shots_dataframe(request.use_small)
-    if request.apply_preprocessing:
-        # Remove nans and duplicates
-        df = preprocess_fields(df)
+
     if request.filter_clean:
         # only use clean source columns
         df = filter_clean_source_columns(df)
+    if request.apply_preprocessing:
+        # Remove nans and duplicates
+        df = preprocess_fields(df)
     if request.filter_top_players:
         # only use clean source columns
         df = filter_for_players(df)
