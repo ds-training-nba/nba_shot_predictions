@@ -22,8 +22,8 @@ def fill_team_scores_and_margin(df):
         "3PT Field Goal": 3
     })
 
-    df["pointsHome"] = df["points"].where(df["SHOT_MADE_FLAG"] == 1 & (df["IS_HOME"] == 1), 0)
-    df["pointsAway"] = df["points"].where(df["SHOT_MADE_FLAG"] == 1 & (df["IS_HOME"] == 0), 0)
+    df["pointsHome"] = df["points"].where((df["SHOT_MADE_FLAG"] == 1) & (df["IS_HOME"] == 1), 0)
+    df["pointsAway"] = df["points"].where((df["SHOT_MADE_FLAG"] == 1) & (df["IS_HOME"] == 0), 0)
 
     df["scoreHome"] = df.groupby("GAME_ID_x")["pointsHome"].cumsum()
     df["scoreAway"] = df.groupby("GAME_ID_x")["pointsAway"].cumsum()
