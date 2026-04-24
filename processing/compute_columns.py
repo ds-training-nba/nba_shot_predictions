@@ -45,9 +45,40 @@ def fill_team_scores_and_margin(df):
 
     return df
 
+
+def fill_time_features(df):
+    def played_time_seconds(row):
+        period = row['PERIOD_x']
+        period_time = 12 * 60
+        OT_time = 5 * 60
+        if period <= 4:
+            return (period - 1) * period_time + (period_time - row['TimeRemainingInPeriod'])
+        else:
+            return 4 * period_time + (period - 5) * OT_time + (OT_time - row['TimeRemainingInPeriod'])
+
+    def time_remaining_in_game(row):
+        period = row['PERIOD_x']
+        period_time = 12 * 60
+        if period <= 4:
+            return (4 - period) * period_time + row['TimeRemainingInPeriod']
+        else:
+            return row['TimeRemainingInPeriod']
+
+    df["TimeRemainingInPeriod"] = (df["PCTIMESTRING"].str[:-3].to_numpy(dtype="int16") * 60 +
+                                   df["PCTIMESTRING"].str[-2:].to_numpy(dtype="int16"))
+    df['TotalPlayedTime']       = df.apply(played_time_seconds, axis=1).astype(int)
+    df['TimeRemainingInGame']   = df.apply(time_remaining_in_game, axis=1).astype(int)
+    df['IsOvertime']            = (df['PERIOD_x'] > 4).astype(int)
+    df['OvertimeNumber']        = (df['PERIOD_x'] - 4).clip(lower=0).astype(int)
+    df['IsClutchTime']          = (
+                                    (df['TimeRemainingInGame'] <= 300) &(df['scoreMarginBeforeShot'].abs() <= 5)
+                                ).astype('int8')
+    return df
+
 COMPUTED_FEATURES_FUNCTIONS = [
     add_is_home_column,
-    fill_team_scores_and_margin
+    fill_team_scores_and_margin,
+    fill_time_features,
 ]
 
 
