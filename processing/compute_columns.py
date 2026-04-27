@@ -64,8 +64,18 @@ def fill_time_features(df):
         else:
             return row['TimeRemainingInPeriod']
 
-    df["TimeRemainingInPeriod"] = (df["PCTIMESTRING"].str[:-3].to_numpy(dtype="int16") * 60 +
-                                   df["PCTIMESTRING"].str[-2:].to_numpy(dtype="int16"))
+    def parse_time(x):
+        if pd.isnull(x) or ':' not in x:
+            return None
+        parts = x.split(':')
+        if len(parts) == 2:
+            return int(parts[0]) * 60 + int(parts[1])
+        return None
+
+    time_from_string = df["PCTIMESTRING"].apply(parse_time)
+    time_from_parts  = df["MINUTES_REMAINING"] * 60 + df["SECONDS_REMAINING"]
+
+    df["TimeRemainingInPeriod"] = time_from_string.fillna(time_from_parts).astype("int16")
     df['TotalPlayedTime']       = df.apply(played_time_seconds, axis=1).astype(int)
     df['TimeRemainingInGame']   = df.apply(time_remaining_in_game, axis=1).astype(int)
     df['IsOvertime']            = (df['PERIOD_x'] > 4).astype(int)
