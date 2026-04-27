@@ -10,7 +10,6 @@ def add_is_home_column(df: pd.DataFrame):
         home_team = row['HTM']
         return 1 if home_team == player_team else 0
 
-    df["HTM"] = df.groupby("GAME_ID_x")["HTM"].ffill().bfill()
     df['IS_HOME'] = df.apply(is_home, axis=1)
     return df
 
