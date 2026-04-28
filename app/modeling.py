@@ -17,10 +17,6 @@ def evaluate_model(model_id: str):
     :return: None
     """
     dataset = test_train_dataset()
-    print(dataset['test'].head())
-    print(dataset['train'].head())
-    print(dataset['train'].columns)
-
     X_test, y_test = split_x_y(filter_pre_encoding_columns(dataset['test']))
     X_train, y_train = split_x_y(filter_pre_encoding_columns(dataset['train']))
     X_train, X_test = encode_for_model(X_train, model_id, X_test)
