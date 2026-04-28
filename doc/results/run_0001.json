@@ -1,0 +1,65 @@
+{
+  "run_id": 1,
+  "input": {
+    "model": {
+      "name": "RandomForest",
+      "parameters": {}
+    },
+    "features": {}
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6511252483570228,
+      "macro_avg": {
+        "precision": 0.6492453753093346,
+        "recall": 0.6526112717853703,
+        "f1-score": 0.6483687392208374,
+        "support": 104688.0
+      },
+      "weighted_avg": {
+        "precision": 0.6600194915710308,
+        "recall": 0.6511252483570228,
+        "f1-score": 0.6530627450688847,
+        "support": 104688.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5777856259932898,
+        "recall": 0.6624673805453073,
+        "f1-score": 0.6172355610517821,
+        "support": 44452.0
+      },
+      "1.0": {
+        "precision": 0.7207051246253793,
+        "recall": 0.6427551630254333,
+        "f1-score": 0.6795019173898926,
+        "support": 60236.0
+      },
+      "accuracy": 0.6511252483570228,
+      "macro avg": {
+        "precision": 0.6492453753093346,
+        "recall": 0.6526112717853703,
+        "f1-score": 0.6483687392208374,
+        "support": 104688.0
+      },
+      "weighted avg": {
+        "precision": 0.6600194915710308,
+        "recall": 0.6511252483570228,
+        "f1-score": 0.6530627450688847,
+        "support": 104688.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        29448,
+        15004
+      ],
+      [
+        21519,
+        38717
+      ]
+    ]
+  },
+  "timestamp": "2026-04-28T13:28:23.725884"
+}

@@ -11,7 +11,7 @@ from processing.filtering import filter_pre_encoding_columns
 MODEL_ID_RANDOM_FOREST = "RandomForest"
 
 
-def evaluate_model(model_id: str):
+def model_prediction(model_id: str):
     """
     whole processing pipeline, yet to be made testable and configurable
     :return: None
@@ -23,8 +23,7 @@ def evaluate_model(model_id: str):
     model = build_model(model_id)
     model.fit(X_train, y_train)
     y_pred = predict(model, X_test)
-    cm, cr = evaluate_predictions(y_test, y_pred)
-    return cm,cr
+    return y_pred, y_test
 
 
 def evaluate_predictions(y_test, y_pred):

@@ -6,7 +6,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 
 def encode_for_model(X_train, model_to_encode_for: str, X_test = None):
-    categorical_cols = ["MAIN_ACTION_TYPE"]
+    categorical_cols = ["MAIN_ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE", 'ANGLE_SECTOR']
     numeric_cols = []
 
     preprocessor = ColumnTransformer(

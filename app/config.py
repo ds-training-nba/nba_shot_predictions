@@ -1,4 +1,4 @@
-
+RESULTS_PATH = 'doc/results'
 
 ESPN_TOP_25 = [
     'LeBron James',
@@ -114,6 +114,9 @@ CLEAN_SOURCE_COLUMNS = [
 EXPLANATORY_VARIABLES_PRE_ENCODING = [
     "PLAYER_ID",
     "MAIN_ACTION_TYPE",
+    "SHOT_TYPE",
+    "SHOT_DISTANCE",
+    "ANGLE_SECTOR",
     "IS_HOME",
     "is_playoffs",
 ]
