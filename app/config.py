@@ -83,12 +83,27 @@ CLEAN_SOURCE_COLUMNS = [
     "LOC_Y",
     "ACTION_TYPE",
     "HTM",
+    "VTM",
     "PLAYER1_TEAM_ABBREVIATION",
     "PLAYER_ID",
     "scoreHome",
     "scoreAway",
+    "PLAYER_NAME",
+    "TEAM_ID",
+    "PERIOD_x",
+    "MINUTES_REMAINING",
+    "SECONDS_REMAINING",
+    "GAME_DATE",
+    "PLAYER2_ID",
+    "PLAYER2_NAME",
+    "PLAYER2_TEAM_ABBREVIATION",
+    "PLAYER3_ID",
+    "PLAYER3_NAME",
+    "is_playoffs",
+    "PCTIMESTRING",
     TARGET_VARIABLE,
 ]
+
 
 EXPLANATORY_VARIABLES_PRE_ENCODING = [
     "PLAYER_ID",

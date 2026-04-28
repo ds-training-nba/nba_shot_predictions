@@ -85,18 +85,6 @@ def fill_time_features(df):
                                 ).astype('int8')
     return df
 
-COMPUTED_FEATURES_FUNCTIONS = [
-    add_is_home_column,
-    fill_team_scores_and_margin,
-    fill_time_features,
-]
-
-
-def add_computed_feature_columns(df):
-    for func in COMPUTED_FEATURES_FUNCTIONS:
-        df = func(df)
-    return df
-
 
 def add_opponent_interfered_column(df: pd.DataFrame):
     def opponent_interfered(row):
@@ -126,6 +114,8 @@ def add_angle_column(df: pd.DataFrame):
     df['ANGLE'] = df.apply(angle,axis=1)
     df['ANGLE_SECTOR'] = df['ANGLE'].apply(angle_sector)
     df['ABS_ANGLE'] = df['ANGLE'].apply(lambda val: abs(val))
+    df['ANGLE_SIN'] = df['ANGLE'].apply(lambda val: np.sin(val))
+    df['ANGLE_COS'] = df['ANGLE'].apply(lambda val: np.cos(val))
     return df
 
 
@@ -157,3 +147,17 @@ def add_shifted_score_columns(df: pd.DataFrame):
     df['MAIN_ACTION_TYPE'] = df['ACTION_TYPE'].apply(main_category)
     return df
 
+
+COMPUTED_FEATURES_FUNCTIONS = [
+    add_is_home_column,
+    fill_team_scores_and_margin,
+    fill_time_features,
+    add_opponent_interfered_column,
+    add_angle_column,
+    add_shot_main_action_type_column
+]
+
+def add_computed_feature_columns(df):
+    for func in COMPUTED_FEATURES_FUNCTIONS:
+        df = func(df)
+    return df
