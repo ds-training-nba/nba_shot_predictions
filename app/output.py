@@ -3,6 +3,8 @@ import json
 from datetime import datetime
 from sklearn.metrics import classification_report, confusion_matrix
 
+from app.conf.run import RunConfig
+
 
 def get_next_run_id(output_dir, prefix="run"):
     """
@@ -33,8 +35,7 @@ def get_next_run_id(output_dir, prefix="run"):
 def save_classification_run(
     y_true,
     y_pred,
-    model_name,
-    parameters,
+    config: RunConfig,
     output_dir="runs",
     prefix="run"
 ):
@@ -53,11 +54,14 @@ def save_classification_run(
         "run_id": run_id,
         "input": {
             "model": {
-                "name": model_name,
-                "parameters": parameters,
+                "name": config.model_config.model_id,
+                "parameters": config.model_config.model_parameters,
             },
             "features": {
-
+                "encoding": {
+                    "one_hot": config.encoding_config.one_hot_cols,
+                    "passthrough": config.encoding_config.passthrough_cols,
+                }
             }
         },
         "result": {

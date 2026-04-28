@@ -2,25 +2,25 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 import pandas as pd
 
+import app.conf.run
+from app.conf.run import RunConfig
 from app.config import TARGET_VARIABLE
 from app.data_providers import test_train_dataset
 from processing.encoding import encode_for_model
 from processing.filtering import filter_pre_encoding_columns
 
 
-MODEL_ID_RANDOM_FOREST = "RandomForest"
+def model_prediction(config: RunConfig):
 
-
-def model_prediction(model_id: str):
     """
     whole processing pipeline, yet to be made testable and configurable
     :return: None
     """
     dataset = test_train_dataset()
-    X_test, y_test = split_x_y(filter_pre_encoding_columns(dataset['test']))
-    X_train, y_train = split_x_y(filter_pre_encoding_columns(dataset['train']))
-    X_train, X_test = encode_for_model(X_train, model_id, X_test)
-    model = build_model(model_id)
+    X_test, y_test = split_x_y(dataset['test'])
+    X_train, y_train = split_x_y(dataset['train'])
+    X_train, X_test = encode_for_model(X_train, config.model_config.model_id,config.encoding_config, X_test)
+    model = build_model(config.model_config.model_id)
     model.fit(X_train, y_train)
     y_pred = predict(model, X_test)
     return y_pred, y_test
@@ -46,7 +46,6 @@ def split_x_y(df):
     return X,y
 
 def build_model(model_id: str):
-    global MODEL_ID_RANDOM_FOREST
     match model_id:
-        case MODEL_ID_RANDOM_FOREST:
+        case app.conf.run.MODEL_ID_RANDOM_FOREST:
             return RandomForestClassifier(n_jobs=-1, random_state=321)
