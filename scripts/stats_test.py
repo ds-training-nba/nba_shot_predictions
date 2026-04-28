@@ -7,5 +7,5 @@ from processing.compute_columns import add_shot_main_action_type_column
 df = main_dataframe()
 
 from scipy.stats import pearsonr
-#print(pearsonr(df['SHOT_DISTANCE'],df[TARGET_VARIABLE]))
+print(pearsonr(df['SHOT_DISTANCE'],df[TARGET_VARIABLE]))
 print(pearsonr(df['PERIOD_x'],df[TARGET_VARIABLE]))
