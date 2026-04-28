@@ -97,3 +97,16 @@ def filtered_shots_dataframe(use_small = False):
     """
     df = get_shots_dataframe(use_small)
     return filter_for_players(df)
+
+def test_train_dataset():
+    ds = load_dataset(
+        "ds-training-nba/nba_shot_data",
+        data_files={
+            "train": "processed/processed_20_players_train.parquet",
+            "test": "processed/processed_20_players_test.parquet"
+        }
+    )
+    return {
+        "train": ds['train'].to_pandas(),
+        "test": ds['test'].to_pandas(),
+    }
