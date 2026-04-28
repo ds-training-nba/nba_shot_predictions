@@ -115,6 +115,7 @@ EXPLANATORY_VARIABLES_PRE_ENCODING = [
     "PLAYER_ID",
     "MAIN_ACTION_TYPE",
     "IS_HOME",
+    "is_playoffs",
 ]
 
 
