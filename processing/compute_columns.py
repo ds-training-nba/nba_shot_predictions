@@ -45,15 +45,44 @@ def fill_team_scores_and_margin(df):
 
     return df
 
-COMPUTED_FEATURES_FUNCTIONS = [
-    add_is_home_column,
-    fill_team_scores_and_margin
-]
 
+def fill_time_features(df):
+    def played_time_seconds(row):
+        period = row['PERIOD_x']
+        period_time = 12 * 60
+        OT_time = 5 * 60
+        if period <= 4:
+            return (period - 1) * period_time + (period_time - row['TimeRemainingInPeriod'])
+        else:
+            return 4 * period_time + (period - 5) * OT_time + (OT_time - row['TimeRemainingInPeriod'])
 
-def add_computed_feature_columns(df):
-    for func in COMPUTED_FEATURES_FUNCTIONS:
-        df = func(df)
+    def time_remaining_in_game(row):
+        period = row['PERIOD_x']
+        period_time = 12 * 60
+        if period <= 4:
+            return (4 - period) * period_time + row['TimeRemainingInPeriod']
+        else:
+            return row['TimeRemainingInPeriod']
+
+    def parse_time(x):
+        if pd.isnull(x) or ':' not in x:
+            return None
+        parts = x.split(':')
+        if len(parts) == 2:
+            return int(parts[0]) * 60 + int(parts[1])
+        return None
+
+    time_from_string = df["PCTIMESTRING"].apply(parse_time)
+    time_from_parts  = df["MINUTES_REMAINING"] * 60 + df["SECONDS_REMAINING"]
+
+    df["TimeRemainingInPeriod"] = time_from_string.fillna(time_from_parts).astype("int16")
+    df['TotalPlayedTime']       = df.apply(played_time_seconds, axis=1).astype(int)
+    df['TimeRemainingInGame']   = df.apply(time_remaining_in_game, axis=1).astype(int)
+    df['IsOvertime']            = (df['PERIOD_x'] > 4).astype(int)
+    df['OvertimeNumber']        = (df['PERIOD_x'] - 4).clip(lower=0).astype(int)
+    df['IsClutchTime']          = (
+                                    (df['TimeRemainingInGame'] <= 300) &(df['scoreMarginBeforeShot'].abs() <= 5)
+                                ).astype('int8')
     return df
 
 
@@ -85,6 +114,8 @@ def add_angle_column(df: pd.DataFrame):
     df['ANGLE'] = df.apply(angle,axis=1)
     df['ANGLE_SECTOR'] = df['ANGLE'].apply(angle_sector)
     df['ABS_ANGLE'] = df['ANGLE'].apply(lambda val: abs(val))
+    df['ANGLE_SIN'] = df['ANGLE'].apply(lambda val: np.sin(val))
+    df['ANGLE_COS'] = df['ANGLE'].apply(lambda val: np.cos(val))
     return df
 
 
@@ -116,3 +147,17 @@ def add_shifted_score_columns(df: pd.DataFrame):
     df['MAIN_ACTION_TYPE'] = df['ACTION_TYPE'].apply(main_category)
     return df
 
+
+COMPUTED_FEATURES_FUNCTIONS = [
+    add_is_home_column,
+    fill_team_scores_and_margin,
+    fill_time_features,
+    add_opponent_interfered_column,
+    add_angle_column,
+    add_shot_main_action_type_column
+]
+
+def add_computed_feature_columns(df):
+    for func in COMPUTED_FEATURES_FUNCTIONS:
+        df = func(df)
+    return df
