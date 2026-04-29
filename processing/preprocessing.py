@@ -12,6 +12,12 @@ def preprocess_fields(df):
     df['VTM'] = df.groupby('GAME_ID_x')['VTM'].transform('first')
     df['GAME_DATE'] = df.groupby('GAME_ID_x')['GAME_DATE'].transform('first')
 
+    # Leave only the first TEAM_ID, MINUTES_REMAINING, SECONDS_REMAINING column (because we have them duplicated)
+    df = df.loc[:, ~(
+        df.columns.isin(['TEAM_ID', 'MINUTES_REMAINING', 'SECONDS_REMAINING', 'GAME_DATE']) &
+        df.columns.duplicated(keep='first')
+    )]
+
     # We can fill PLAYER1_TEAM_ABBREVIATION, by checking other rows with same player and team id
     df['PLAYER1_TEAM_ABBREVIATION'] = df.groupby(['PLAYER_ID', 'TEAM_ID'])['PLAYER1_TEAM_ABBREVIATION'].transform('first')
     df = df.dropna(subset=['PLAYER1_TEAM_ABBREVIATION']) # drop remaining nans
