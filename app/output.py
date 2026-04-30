@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import json
 from datetime import datetime
 from sklearn.metrics import classification_report, confusion_matrix
@@ -30,6 +31,30 @@ def get_next_run_id(output_dir, prefix="run"):
 
     return max(ids) + 1 if ids else 1
 
+def numeric_dirs_in_path(path:Path) -> list[Path]:
+    numeric_dirs = sorted(
+        (
+            p for p in path.iterdir()
+            if p.is_dir() and p.name.isdigit()
+        ),
+        key=lambda p: int(p.name)
+    )
+    return numeric_dirs
+
+def current_path_version_for_dirs(dirs: list[Path]) -> int|None:
+    max_number = max(
+        (int(p.name) for p in dirs),
+        default=None
+    )
+    return max_number
+
+def create_new_output_version_dir(path: Path):
+    dirs_in_path = numeric_dirs_in_path(path)
+    current = current_path_version_for_dirs(dirs_in_path)
+    next_version = current + 1 if current is not None else 1
+    new_path = path / str(next_version)
+    new_path.mkdir(exist_ok=False, parents=False)
+    return new_path
 
 
 def save_classification_run(
@@ -52,6 +77,7 @@ def save_classification_run(
 
     result = {
         "run_id": run_id,
+        "context_name": config.context_name,
         "input": {
             "model": {
                 "name": config.model_config.model_id,
@@ -60,6 +86,7 @@ def save_classification_run(
             "features": {
                 "encoding": {
                     "one_hot": config.encoding_config.one_hot_cols,
+                    "target_enc": config.encoding_config.target_enc_cols,
                     "passthrough": config.encoding_config.passthrough_cols,
                 }
             }

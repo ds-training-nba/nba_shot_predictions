@@ -1,0 +1,79 @@
+{
+  "run_id": 3,
+  "input": {
+    "model": {
+      "name": "RandomForest",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "ANGLE_SECTOR",
+          "IS_HOME",
+          "is_playoffs"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6443323860998124,
+      "macro_avg": {
+        "precision": 0.6369348114799116,
+        "recall": 0.6361712582018598,
+        "f1-score": 0.6364955238338188,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.6434498159387846,
+        "recall": 0.6443323860998124,
+        "f1-score": 0.6438352402612955,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5895584804331558,
+        "recall": 0.5768245149342119,
+        "f1-score": 0.5831219862633475,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.6843111425266675,
+        "recall": 0.6955180014695077,
+        "f1-score": 0.6898690614042902,
+        "support": 61245.0
+      },
+      "accuracy": 0.6443323860998124,
+      "macro avg": {
+        "precision": 0.6369348114799116,
+        "recall": 0.6361712582018598,
+        "f1-score": 0.6364955238338188,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.6434498159387846,
+        "recall": 0.6443323860998124,
+        "f1-score": 0.6438352402612955,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        26786,
+        19651
+      ],
+      [
+        18648,
+        42597
+      ]
+    ]
+  },
+  "timestamp": "2026-04-30T13:09:34.547352"
+}

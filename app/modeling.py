@@ -1,9 +1,11 @@
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 from sklearn.metrics import classification_report
 import pandas as pd
 
 import app.conf.run
-from app.conf.run import RunConfig
+from app.conf.run import RunConfig, ModelConfig
 from app.config import TARGET_VARIABLE
 from app.data_providers import test_train_dataset
 from processing.encoding import encode_for_model
@@ -17,10 +19,15 @@ def model_prediction(config: RunConfig):
     :return: None
     """
     dataset = test_train_dataset()
-    X_test, y_test = split_x_y(dataset['test'])
-    X_train, y_train = split_x_y(dataset['train'])
-    X_train, X_test = encode_for_model(X_train, config.model_config.model_id,config.encoding_config, X_test)
-    model = build_model(config.model_config.model_id)
+    df_train = dataset['train']
+    df_test = dataset['test']
+    if config.use_only_field_goals:
+        df_train = df_train[df_train['points'] != 1]
+        df_test = df_test[df_test['points'] != 1]
+    X_test, y_test = split_x_y(df_test)
+    X_train, y_train = split_x_y(df_train)
+    X_train, X_test = encode_for_model(X_train, y_train, config.model_config.model_id,config.encoding_config, X_test)
+    model = build_model(config.model_config)
     model.fit(X_train, y_train)
     y_pred = predict(model, X_test)
     return y_pred, y_test
@@ -45,7 +52,11 @@ def split_x_y(df):
     y = df[TARGET_VARIABLE]
     return X,y
 
-def build_model(model_id: str):
-    match model_id:
+def build_model(model_config: ModelConfig):
+    match model_config.model_id:
         case app.conf.run.MODEL_ID_RANDOM_FOREST:
             return RandomForestClassifier(n_jobs=-1, random_state=321)
+        case app.conf.run.MODEL_ID_SVM:
+            return SVC()
+        case app.conf.run.MODEL_ID_LOGISTIC_REGRESSION:
+            return LogisticRegression()

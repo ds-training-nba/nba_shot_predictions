@@ -1,4 +1,5 @@
 RESULTS_PATH = 'doc/results'
+EXPERIMENTS_PATH = RESULTS_PATH + '/experiments'
 
 ESPN_TOP_25 = [
     'LeBron James',

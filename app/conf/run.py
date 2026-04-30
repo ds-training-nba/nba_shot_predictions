@@ -11,12 +11,16 @@ class ModelConfig:
 class EncodingConfig:
     one_hot_cols: list[str]
     passthrough_cols: list[str]
+    target_enc_cols: list[str]
+    std_scale_cols: list[str]
 
 
 @dataclasses.dataclass
 class RunConfig:
     model_config: ModelConfig
     encoding_config: EncodingConfig
+    context_name: str = "default"
+    use_only_field_goals: bool = False
 
 
 def build_default_run_config():
@@ -26,12 +30,15 @@ def build_default_run_config():
             one_hot_cols=["MAIN_ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE", 'ANGLE_SECTOR'],
             passthrough_cols=[
                 "SHOT_DISTANCE",
-                "ANGLE_SECTOR",
                 "IS_HOME",
                 "is_playoffs",
-            ]
+            ],
+            target_enc_cols=[],
+            std_scale_cols=[]
         )
     )
 
 
 MODEL_ID_RANDOM_FOREST = "RandomForest"
+MODEL_ID_SVM = "SVM"
+MODEL_ID_LOGISTIC_REGRESSION = "LogisticRegression"

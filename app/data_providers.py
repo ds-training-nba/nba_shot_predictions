@@ -83,9 +83,9 @@ def provide_dataframe(request: DataFrameRequest):
     if request.filter_pre_encoding_columns:
         # cleanup columns before encoding
         df = filter_pre_encoding_columns(df)
-    if request.encode_for_model:
-        # encode
-        df = encode_for_model(df, request.model_to_encode_for)
+    # if request.encode_for_model:
+    #     # encode
+    #     df = encode_for_model(df, request.model_to_encode_for)
     return df
 
 
