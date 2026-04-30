@@ -2,6 +2,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report
+from lightgbm import LGBMClassifier
 import pandas as pd
 
 import app.conf.run
@@ -60,3 +61,10 @@ def build_model(model_config: ModelConfig):
             return SVC()
         case app.conf.run.MODEL_ID_LOGISTIC_REGRESSION:
             return LogisticRegression()
+        case app.conf.run.MODEL_ID_LIGHT_GBM:
+            return LGBMClassifier(
+                        n_estimators=1000,
+                        learning_rate=0.1,
+                        max_depth=10,
+                        n_jobs=-1
+                    )

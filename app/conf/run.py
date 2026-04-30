@@ -42,3 +42,4 @@ def build_default_run_config():
 MODEL_ID_RANDOM_FOREST = "RandomForest"
 MODEL_ID_SVM = "SVM"
 MODEL_ID_LOGISTIC_REGRESSION = "LogisticRegression"
+MODEL_ID_LIGHT_GBM = "LightGBM"

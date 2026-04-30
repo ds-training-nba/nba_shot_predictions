@@ -8,3 +8,4 @@ datasets
 jupyter
 statsmodels
 streamlit
+lightgbm
