@@ -21,6 +21,7 @@ class RunConfig:
     encoding_config: EncodingConfig
     context_name: str = "default"
     use_only_field_goals: bool = False
+    return_probabilities: bool = False
 
 
 def build_default_run_config():

@@ -3,6 +3,8 @@ import dataclasses
 from datasets import load_dataset
 import pandas as pd
 
+from app.conf.run import RunConfig
+from app.config import TARGET_VARIABLE
 from processing.compute_columns import add_computed_feature_columns, add_is_home_column, add_opponent_interfered_column, \
     add_angle_column, add_shot_main_action_type_column
 from processing.encoding import encode_for_model
@@ -110,3 +112,21 @@ def test_train_dataset():
         "train": ds['train'].to_pandas(),
         "test": ds['test'].to_pandas(),
     }
+
+def ready_split_dataset(config: RunConfig):
+    dataset = test_train_dataset()
+    df_train = dataset['train']
+    df_test = dataset['test']
+    if config.use_only_field_goals:
+        df_train = df_train[df_train['points'] != 1]
+        df_test = df_test[df_test['points'] != 1]
+    X_test, y_test = split_x_y(df_test)
+    X_train, y_train = split_x_y(df_train)
+    X_train_enc, X_test_enc = encode_for_model(X_train, y_train, config.model_config.model_id, config.encoding_config, X_test)
+    return X_train_enc, y_train, X_test_enc, y_test, X_train, X_test
+
+
+def split_x_y(df):
+    X = df.drop(columns=[TARGET_VARIABLE])
+    y = df[TARGET_VARIABLE]
+    return X,y
