@@ -74,12 +74,12 @@ def provide_dataframe(request: DataFrameRequest):
     if request.apply_preprocessing:
         # Remove nans and duplicates
         df = preprocess_fields(df)
-    if request.filter_top_players:
-        # only use clean source columns
-        df = filter_for_players(df)
     if request.add_computed:
         # computed/engineered features
         df = add_computed_feature_columns(df)
+    if request.filter_top_players:
+        # only use clean source columns
+        df = filter_for_players(df)
     if request.filter_pre_encoding_columns:
         # cleanup columns before encoding
         df = filter_pre_encoding_columns(df)
