@@ -44,3 +44,7 @@ MODEL_ID_RANDOM_FOREST = "RandomForest"
 MODEL_ID_SVM = "SVM"
 MODEL_ID_LOGISTIC_REGRESSION = "LogisticRegression"
 MODEL_ID_LIGHT_GBM = "LightGBM"
+
+
+def get_active_columns(config: EncodingConfig):
+    return config.std_scale_cols + config.passthrough_cols + config.one_hot_cols + config.target_enc_cols
