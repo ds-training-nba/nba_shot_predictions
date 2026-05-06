@@ -1,0 +1,81 @@
+{
+  "run_id": 1,
+  "context_name": "Score Margin not present",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6647164800059434,
+      "macro_avg": {
+        "precision": 0.6627928383498376,
+        "recall": 0.6657801045009635,
+        "f1-score": 0.6623441301494805,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.6715737525433074,
+        "recall": 0.6647164800059434,
+        "f1-score": 0.6662361927103605,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5989390834753634,
+        "recall": 0.6735146542627646,
+        "f1-score": 0.6340415180019462,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.7266465932243117,
+        "recall": 0.6580455547391624,
+        "f1-score": 0.6906467422970147,
+        "support": 61245.0
+      },
+      "accuracy": 0.6647164800059434,
+      "macro avg": {
+        "precision": 0.6627928383498376,
+        "recall": 0.6657801045009635,
+        "f1-score": 0.6623441301494805,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.6715737525433074,
+        "recall": 0.6647164800059434,
+        "f1-score": 0.6662361927103605,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31276,
+        15161
+      ],
+      [
+        20943,
+        40302
+      ]
+    ]
+  },
+  "timestamp": "2026-04-30T17:06:56.396700"
+}

@@ -1,4 +1,4 @@
-from app.conf.run import build_default_run_config, MODEL_ID_RANDOM_FOREST
+from app.conf.run import build_default_run_config
 from app.config import RESULTS_PATH
 from app.modeling import model_prediction
 from app.output import save_classification_run

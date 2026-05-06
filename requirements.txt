@@ -7,3 +7,5 @@ plotly
 datasets
 jupyter
 statsmodels
+streamlit
+lightgbm
