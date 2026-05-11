@@ -1,6 +1,8 @@
 import dataclasses
 from dataclasses import field
 
+from sklearn.metrics import accuracy_score
+
 
 @dataclasses.dataclass
 class ModelConfig:
@@ -19,9 +21,12 @@ class EncodingConfig:
 class RunConfig:
     model_config: ModelConfig
     encoding_config: EncodingConfig
+    metric_string: str = "accuracy"
+    metric_function = accuracy_score
     context_name: str = "default"
     use_only_field_goals: bool = False
     return_probabilities: bool = False
+    use_action_type_fix: bool = False
 
 
 def build_default_run_config():
@@ -41,9 +46,10 @@ def build_default_run_config():
 
 
 MODEL_ID_RANDOM_FOREST = "RandomForest"
-MODEL_ID_SVM = "SVM"
+# MODEL_ID_SVM = "SVM" # too slow for this amount of data
 MODEL_ID_LOGISTIC_REGRESSION = "LogisticRegression"
 MODEL_ID_LIGHT_GBM = "LightGBM"
+MODEL_ID_DECISION_TREE = "DecisionTree"
 
 
 def get_active_columns(config: EncodingConfig):

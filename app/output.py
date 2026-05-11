@@ -62,7 +62,8 @@ def save_classification_run(
     y_pred,
     config: RunConfig,
     output_dir="runs",
-    prefix="run"
+    prefix="run",
+    additional_infos = None
 ):
     os.makedirs(output_dir, exist_ok=True)
 
@@ -74,7 +75,8 @@ def save_classification_run(
 
     # JSON-kompatibel machen
     cm_list = cm.tolist()
-
+    if additional_infos is None:
+        additional_infos = {}
     result = {
         "run_id": run_id,
         "context_name": config.context_name,
@@ -88,6 +90,7 @@ def save_classification_run(
                     "one_hot": config.encoding_config.one_hot_cols,
                     "target_enc": config.encoding_config.target_enc_cols,
                     "passthrough": config.encoding_config.passthrough_cols,
+                    "std_scale": config.encoding_config.std_scale_cols,
                 }
             }
         },
@@ -100,7 +103,8 @@ def save_classification_run(
             "classification_report": report,
             "confusion_matrix": cm_list,
         },
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
+        "additional_infos": additional_infos
     }
 
     filename = f"{prefix}_{run_id:04d}.json"

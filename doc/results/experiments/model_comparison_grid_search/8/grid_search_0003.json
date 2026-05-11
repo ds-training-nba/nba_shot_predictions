@@ -1,0 +1,96 @@
+{
+  "run_id": 1,
+  "context_name": "Light GBM",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "IsClutchTime"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6655522742891106,
+      "macro_avg": {
+        "precision": 0.6647149496693827,
+        "recall": 0.667863390729112,
+        "f1-score": 0.6636585493958358,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.6738858838179986,
+        "recall": 0.6655522742891106,
+        "f1-score": 0.6671291283834117,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5980250164581962,
+        "recall": 0.68466955229666,
+        "f1-score": 0.6384209152426659,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.7314048828805694,
+        "recall": 0.6510572291615642,
+        "f1-score": 0.6888961835490057,
+        "support": 61245.0
+      },
+      "accuracy": 0.6655522742891106,
+      "macro avg": {
+        "precision": 0.6647149496693827,
+        "recall": 0.667863390729112,
+        "f1-score": 0.6636585493958358,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.6738858838179986,
+        "recall": 0.6655522742891106,
+        "f1-score": 0.6671291283834117,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31794,
+        14643
+      ],
+      [
+        21371,
+        39874
+      ]
+    ]
+  },
+  "timestamp": "2026-05-08T15:19:42.764039",
+  "additional_infos": {
+    "grid_search_results": {
+      "best_params": {
+        "subsample": 0.8,
+        "num_leaves": 31,
+        "n_estimators": 300,
+        "min_child_samples": 10,
+        "max_depth": 5,
+        "learning_rate": 0.01,
+        "colsample_bytree": 0.8
+      },
+      "best_score": 0.6665551079173021
+    }
+  }
+}

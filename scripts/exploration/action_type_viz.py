@@ -29,14 +29,23 @@ df_accuracy = shot_accuracy_by_fields(df, ['MAIN_ACTION_TYPE', 'PLAYER_NAME']).r
 #     y=TARGET_VARIABLE
 # )
 
-g = sns.FacetGrid(df, col='PLAYER_NAME', col_wrap=4, height=3)
+# g = sns.FacetGrid(df, col='PLAYER_NAME', col_wrap=4, height=3)
+#
+# g.map_dataframe(
+#     sns.histplot,
+#     x="MAIN_ACTION_TYPE",
+#     stat="probability"
+# )
+#
+#
+#
+# plt.show()
+g = sns.FacetGrid(df, col='MAIN_ACTION_TYPE', col_wrap=2, height=3, sharey=False, sharex=False)
 
 g.map_dataframe(
-    sns.histplot,
-    x="MAIN_ACTION_TYPE",
-    stat="probability"
+    sns.countplot,
+    x="ACTION_TYPE"
 )
-
-
-
+g.set_xticklabels(rotation=90)
+plt.xticks(rotation=90, ha='right')
 plt.show()

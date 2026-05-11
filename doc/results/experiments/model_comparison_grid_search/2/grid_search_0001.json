@@ -1,0 +1,94 @@
+
+{
+  "run_id": 1,
+  "context_name": "Logistic Regression",
+  "input": {
+    "model": {
+      "name": "LogisticRegression",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6613268698575435,
+      "macro_avg": {
+        "precision": 0.6581740394735518,
+        "recall": 0.6607852808893835,
+        "f1-score": 0.658255146042152,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.6664961628828479,
+        "recall": 0.6613268698575435,
+        "f1-score": 0.6627106349498136,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5976565561564386,
+        "recall": 0.6568469108684885,
+        "f1-score": 0.6258553650754568,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.7186915227906648,
+        "recall": 0.6647236509102784,
+        "f1-score": 0.6906549270088471,
+        "support": 61245.0
+      },
+      "accuracy": 0.6613268698575435,
+      "macro avg": {
+        "precision": 0.6581740394735518,
+        "recall": 0.6607852808893835,
+        "f1-score": 0.658255146042152,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.6664961628828479,
+        "recall": 0.6613268698575435,
+        "f1-score": 0.6627106349498136,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        30502,
+        15935
+      ],
+      [
+        20534,
+        40711
+      ]
+    ]
+  },
+  "timestamp": "2026-05-07T14:30:27.585305",
+  "additional_infos": {
+    "grid_search_results": {
+      "best_params": {
+        "C": 0.01,
+        "class_weight": null,
+        "max_iter": 1000,
+        "penalty": "l2",
+        "solver": "liblinear"
+      },
+      "best_score": 0.6619830954286327
+    }
+  }
+}

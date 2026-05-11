@@ -1,12 +1,15 @@
+import os
+import json
+import pandas as pd
+
+from app.modeling import run_grid_search
 from app.conf.run import RunConfig
 from app.config import EXPERIMENTS_PATH
 from pathlib import Path
 from app.modeling import model_prediction
 from app.output import save_classification_run, create_new_output_version_dir, current_path_version_for_dirs, \
     numeric_dirs_in_path
-import os
-import json
-import pandas as pd
+
 
 def experiment_base_path(experiment_id, auto_create=True):
     path = Path('./' + EXPERIMENTS_PATH + "/" + experiment_id)
@@ -25,11 +28,23 @@ def run_experiment_part(config: RunConfig, path):
     y_pred, y_test = model_prediction(config)
     save_classification_run(y_test, y_pred, config, path)
 
+def run_grid_search_experiment_part(config: RunConfig, path):
+    y_pred, y_test, grid_search_results = run_grid_search(config, 5)
+    save_classification_run(y_test, y_pred, config, path,"grid_search", {"grid_search_results": grid_search_results})
+
+
 def run_experiment(configs: list[RunConfig], experiment_id:str):
     exp_path = experiment_base_path(experiment_id)
     run_path = create_new_output_version_dir(exp_path)
     for config in configs:
         run_experiment_part(config,run_path)
+
+
+def run_grid_search_experiment(configs: list[RunConfig], experiment_id:str):
+    exp_path = experiment_base_path(experiment_id)
+    run_path = create_new_output_version_dir(exp_path)
+    for config in configs:
+        run_grid_search_experiment_part(config,run_path)
 
 def load_runs_to_dataframe(directory="runs"):
     records = []

@@ -1,0 +1,85 @@
+{
+  "run_id": 3,
+  "context_name": "For Context: Action Type AND Opponent Interfered",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR",
+          "ACTION_TYPE"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "OPPONENT_INTERFERED"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6912018721791943,
+      "macro_avg": {
+        "precision": 0.6872536024307307,
+        "recall": 0.6898941046966679,
+        "f1-score": 0.6878003064408106,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.6948742982643136,
+        "recall": 0.6912018721791943,
+        "f1-score": 0.6922816574598485,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6318368163183682,
+        "recall": 0.6803841764110515,
+        "f1-score": 0.6552124593019639,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.7426703885430934,
+        "recall": 0.6994040329822843,
+        "f1-score": 0.7203881535796572,
+        "support": 61245.0
+      },
+      "accuracy": 0.6912018721791943,
+      "macro avg": {
+        "precision": 0.6872536024307307,
+        "recall": 0.6898941046966679,
+        "f1-score": 0.6878003064408106,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.6948742982643136,
+        "recall": 0.6912018721791943,
+        "f1-score": 0.6922816574598485,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31595,
+        14842
+      ],
+      [
+        18410,
+        42835
+      ]
+    ]
+  },
+  "timestamp": "2026-05-11T13:22:05.606184",
+  "additional_infos": {}
+}

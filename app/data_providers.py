@@ -9,6 +9,7 @@ from processing.compute_columns import add_computed_feature_columns, add_is_home
     add_angle_column, add_shot_main_action_type_column
 from processing.encoding import encode_for_model
 from processing.filtering import filter_clean_source_columns, filter_pre_encoding_columns, filter_for_players
+from processing.fixes import fix_action_type_target_leak
 from processing.preprocessing import preprocess_fields
 
 def get_shots_dataframe(use_small = False):
@@ -120,6 +121,9 @@ def ready_split_dataset(config: RunConfig):
     if config.use_only_field_goals:
         df_train = df_train[df_train['points'] != 1]
         df_test = df_test[df_test['points'] != 1]
+    if config.use_action_type_fix:
+        df_train = fix_action_type_target_leak(df_train)
+        df_test = fix_action_type_target_leak(df_test)
     X_test, y_test = split_x_y(df_test)
     X_train, y_train = split_x_y(df_train)
     X_train_enc, X_test_enc = encode_for_model(X_train, y_train, config.model_config.model_id, config.encoding_config, X_test)

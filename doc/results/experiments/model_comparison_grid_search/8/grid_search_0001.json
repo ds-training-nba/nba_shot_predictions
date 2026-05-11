@@ -1,0 +1,99 @@
+{
+  "run_id": 1,
+  "context_name": "Random Forest",
+  "input": {
+    "model": {
+      "name": "RandomForest",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "IsClutchTime"
+        ],
+        "std_scale": [
+          "scoreMarginBeforeShot"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6631191842647797,
+      "macro_avg": {
+        "precision": 0.6662983397814357,
+        "recall": 0.6692051119999507,
+        "f1-score": 0.662348663820951,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.6767135908634364,
+        "recall": 0.6631191842647797,
+        "f1-score": 0.6645667561094841,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.590559883068038,
+        "recall": 0.7134612485733359,
+        "f1-score": 0.6462189627260138,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.7420367964948333,
+        "recall": 0.6249489754265655,
+        "f1-score": 0.6784783649158882,
+        "support": 61245.0
+      },
+      "accuracy": 0.6631191842647797,
+      "macro avg": {
+        "precision": 0.6662983397814357,
+        "recall": 0.6692051119999507,
+        "f1-score": 0.662348663820951,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.6767135908634364,
+        "recall": 0.6631191842647797,
+        "f1-score": 0.6645667561094841,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        33131,
+        13306
+      ],
+      [
+        22970,
+        38275
+      ]
+    ]
+  },
+  "timestamp": "2026-05-08T17:22:29.188444",
+  "additional_infos": {
+    "grid_search_results": {
+      "best_params": {
+        "n_estimators": 100,
+        "min_samples_split": 5,
+        "min_samples_leaf": 5,
+        "max_features": "sqrt",
+        "max_depth": 5,
+        "class_weight": "balanced",
+        "bootstrap": true
+      },
+      "best_score": 0.6650303378533209
+    }
+  }
+}
