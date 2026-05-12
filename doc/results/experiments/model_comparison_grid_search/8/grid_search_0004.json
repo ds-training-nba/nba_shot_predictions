@@ -1,0 +1,94 @@
+{
+  "run_id": 1,
+  "context_name": "Decision Tree",
+  "input": {
+    "model": {
+      "name": "DecisionTree",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "IsClutchTime"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6656730001300124,
+      "macro_avg": {
+        "precision": 0.6661996121187541,
+        "recall": 0.6693935511985508,
+        "f1-score": 0.6642546096118465,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.6758268594388614,
+        "recall": 0.6656730001300124,
+        "f1-score": 0.6672555421440656,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5961914242524794,
+        "recall": 0.696448952344036,
+        "f1-score": 0.642432188154902,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.7362077999850288,
+        "recall": 0.6423381500530656,
+        "f1-score": 0.6860770310687908,
+        "support": 61245.0
+      },
+      "accuracy": 0.6656730001300124,
+      "macro avg": {
+        "precision": 0.6661996121187541,
+        "recall": 0.6693935511985508,
+        "f1-score": 0.6642546096118465,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.6758268594388614,
+        "recall": 0.6656730001300124,
+        "f1-score": 0.6672555421440656,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        32341,
+        14096
+      ],
+      [
+        21905,
+        39340
+      ]
+    ]
+  },
+  "timestamp": "2026-05-07T17:46:28.402425",
+  "additional_infos": {
+    "grid_search_results": {
+      "best_params": {
+        "min_samples_split": 2,
+        "min_samples_leaf": 5,
+        "max_depth": 5,
+        "criterion": "gini",
+        "class_weight": null
+      },
+      "best_score": 0.6663993795577158
+    }
+  }
+}

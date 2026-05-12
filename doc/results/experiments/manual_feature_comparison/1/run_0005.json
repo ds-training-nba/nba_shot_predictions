@@ -1,0 +1,93 @@
+{
+  "run_id": 5,
+  "context_name": "Action Type WITH leakage FIX + other columns",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR",
+          "ACTION_TYPE",
+          "SHOT_ZONE_RANGE",
+          "OvertimeNumber",
+          "PERIOD_x",
+          "SHOT_ZONE_BASIC",
+          "SHOT_ZONE_AREA"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "IsOvertime"
+        ],
+        "std_scale": [
+          "ABS_ANGLE",
+          "TimeRemainingInGame"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6728701175683959,
+      "macro_avg": {
+        "precision": 0.672460119713,
+        "recall": 0.6757778718800262,
+        "f1-score": 0.671175636388092,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.6817718501465928,
+        "recall": 0.6728701175683959,
+        "f1-score": 0.6744216748509559,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6047463328038868,
+        "recall": 0.6969227124921937,
+        "f1-score": 0.6475708340003201,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.7401739066221131,
+        "recall": 0.6546330312678587,
+        "f1-score": 0.6947804387758638,
+        "support": 61245.0
+      },
+      "accuracy": 0.6728701175683959,
+      "macro avg": {
+        "precision": 0.672460119713,
+        "recall": 0.6757778718800262,
+        "f1-score": 0.671175636388092,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.6817718501465928,
+        "recall": 0.6728701175683959,
+        "f1-score": 0.6744216748509559,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        32363,
+        14074
+      ],
+      [
+        21152,
+        40093
+      ]
+    ]
+  },
+  "timestamp": "2026-05-11T13:22:13.551246",
+  "additional_infos": {}
+}

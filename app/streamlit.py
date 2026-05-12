@@ -1,5 +1,5 @@
-from huggingface_hub.utils import paginate
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 from app.conf.run import build_default_run_config, MODEL_ID_LIGHT_GBM
 from app.experiments import experiment_current_path, load_runs_to_dataframe
 import streamlit as st
@@ -22,6 +22,12 @@ def sl_show_false_predictions():
     page_p = st.number_input("Seite", min_value=1, max_value=total_pages, step=1)
     st.title("False Positives")
     st.dataframe(paginate_dataframe(false_positives, page_size, page_p))
+
+    plt.figure(figsize=(10, 8))
+    sns.countplot(false_positives, x="MAIN_ACTION_TYPE",stat="percent")
+
+    # Show the plot in Streamlit
+    st.pyplot(plt)
 
     total_pages = (len(false_negatives) - 1) // page_size + 1
     page_n = st.number_input("Seite", min_value=1, max_value=total_pages, step=1)
