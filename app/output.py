@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import json
 from datetime import datetime
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, brier_score_loss
 
 from app.conf.run import RunConfig
 
@@ -63,7 +63,8 @@ def save_classification_run(
     config: RunConfig,
     output_dir="runs",
     prefix="run",
-    additional_infos = None
+    additional_infos = None,
+    y_proba = None
 ):
     os.makedirs(output_dir, exist_ok=True)
 
@@ -99,6 +100,7 @@ def save_classification_run(
                 "accuracy": report.get("accuracy"),
                 "macro_avg": report.get("macro avg"),
                 "weighted_avg": report.get("weighted avg"),
+                "brier_score": "n/a" if y_proba is None else brier_score_loss(y_true, y_proba)
             },
             "classification_report": report,
             "confusion_matrix": cm_list,

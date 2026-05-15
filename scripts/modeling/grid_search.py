@@ -26,8 +26,8 @@ config4.model_config.model_id = MODEL_ID_DECISION_TREE
 run_grid_search_experiment(
     [
         #config2,
-        config1,
-        #config3,
-    #config4
+        #config1,
+        config3,
+        #config4
     ], experiment_id
 )

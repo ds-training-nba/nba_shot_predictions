@@ -1,0 +1,97 @@
+{
+  "run_id": 1,
+  "context_name": "Decision Tree",
+  "input": {
+    "model": {
+      "name": "DecisionTree",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "IsClutchTime"
+        ],
+        "std_scale": [
+          "scoreMarginBeforeShot"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6659237384149626,
+      "macro_avg": {
+        "precision": 0.6650600941324776,
+        "recall": 0.668213378098198,
+        "f1-score": 0.6640217431834585,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.674221157552991,
+        "recall": 0.6659237384149626,
+        "f1-score": 0.6674980139052694,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5984419396722052,
+        "recall": 0.6848633632663609,
+        "f1-score": 0.6387427194215706,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.7316782485927501,
+        "recall": 0.6515633929300351,
+        "f1-score": 0.6893007669453465,
+        "support": 61245.0
+      },
+      "accuracy": 0.6659237384149626,
+      "macro avg": {
+        "precision": 0.6650600941324776,
+        "recall": 0.668213378098198,
+        "f1-score": 0.6640217431834585,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.674221157552991,
+        "recall": 0.6659237384149626,
+        "f1-score": 0.6674980139052694,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31803,
+        14634
+      ],
+      [
+        21340,
+        39905
+      ]
+    ]
+  },
+  "timestamp": "2026-05-12T16:08:47.419194",
+  "additional_infos": {
+    "grid_search_results": {
+      "best_params": {
+        "min_samples_split": 10,
+        "min_samples_leaf": 2,
+        "max_depth": 8,
+        "criterion": "gini",
+        "class_weight": null
+      },
+      "best_score": -0.21152763740256497
+    }
+  }
+}

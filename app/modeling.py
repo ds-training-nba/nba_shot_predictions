@@ -1,3 +1,4 @@
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import RFECV
 from sklearn.linear_model import LogisticRegression
@@ -53,16 +54,47 @@ def predict_probabilities(model, X):
 
 
 def build_model(model_config: ModelConfig):
+    model = None
     match model_config.model_id:
         case app.conf.run.MODEL_ID_RANDOM_FOREST:
-            return RandomForestClassifier()
+            model = RandomForestClassifier(
+                n_estimators=100,
+                min_samples_split=5,
+                min_samples_leaf=5,
+                max_features="sqrt",
+                max_depth=5,
+                class_weight="balanced",
+                bootstrap=True
+            )
         case app.conf.run.MODEL_ID_LOGISTIC_REGRESSION:
             # params according to RandomSearchCV
-            return LogisticRegression(solver="liblinear", l1_ratio=0, max_iter=1000, class_weight=None, C=0.01)
+            model = LogisticRegression(solver="liblinear", l1_ratio=0, max_iter=1000, class_weight=None, C=1)
         case app.conf.run.MODEL_ID_DECISION_TREE:
-            return DecisionTreeClassifier()
+            model = DecisionTreeClassifier(
+                min_samples_split=10,
+                min_samples_leaf=2,
+                max_depth=8,
+                criterion="gini",
+                class_weight=None
+            )
         case app.conf.run.MODEL_ID_LIGHT_GBM:
-            return LGBMClassifier()
+            model = LGBMClassifier(
+                subsample=0.8,
+                num_leaves=31,
+                n_estimators=100,
+                min_child_samples=20,
+                max_depth=10,
+                learning_rate=0.05,
+                colsample_bytree=0.8
+            )
+    if not model_config.wrap_calibrated:
+        return model
+    else:
+        return CalibratedClassifierCV(
+            model,
+            method="isotonic",
+            cv=3
+        )
 def build_param_grid(model_config: ModelConfig):
     match model_config.model_id:
         case app.conf.run.MODEL_ID_RANDOM_FOREST:
@@ -126,7 +158,7 @@ def run_feature_selection(config: RunConfig):
         estimator=model,
         step=1,
         cv=3,
-        scoring="roc_auc",
+        scoring="neg_brier_score",
         n_jobs=-1,
         verbose=2
     )

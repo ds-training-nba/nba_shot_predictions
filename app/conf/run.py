@@ -1,13 +1,14 @@
 import dataclasses
 from dataclasses import field
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, brier_score_loss
 
 
 @dataclasses.dataclass
 class ModelConfig:
     model_id: str
     model_parameters: dict = field(default_factory=lambda : {})
+    wrap_calibrated: bool = False
 
 @dataclasses.dataclass
 class EncodingConfig:
@@ -21,12 +22,13 @@ class EncodingConfig:
 class RunConfig:
     model_config: ModelConfig
     encoding_config: EncodingConfig
-    metric_string: str = "accuracy"
+    metric_string: str = "neg_brier_score"
     metric_function = accuracy_score
     context_name: str = "default"
     use_only_field_goals: bool = False
     return_probabilities: bool = False
     use_action_type_fix: bool = False
+    decision_boundary: float = 0.5
 
 
 def build_default_run_config():
@@ -42,6 +44,43 @@ def build_default_run_config():
             target_enc_cols=[],
             std_scale_cols=[]
         )
+    )
+
+def build_best_run_config():
+    return RunConfig(
+        model_config=ModelConfig(model_id=MODEL_ID_LIGHT_GBM),
+        encoding_config=EncodingConfig(
+            one_hot_cols=["ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE", 'ANGLE_SECTOR'],
+            passthrough_cols=[
+                "SHOT_DISTANCE",
+                "IS_HOME",
+                "is_playoffs",
+                "TimeRemainingInGame",
+                "IsClutchTime"
+            ],
+            target_enc_cols=[],
+            std_scale_cols=[]
+        ),
+        use_action_type_fix=True
+    )
+
+def build_interpretability_run_config():
+    return RunConfig(
+        model_config=ModelConfig(model_id=MODEL_ID_LIGHT_GBM),
+        encoding_config=EncodingConfig(
+            one_hot_cols=["MAIN_ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE"],
+            passthrough_cols=[
+                "SHOT_DISTANCE",
+                "IS_HOME",
+                "is_playoffs",
+                "TimeRemainingInGame",
+                "IsClutchTime",
+                "ABS_ANGLE"
+            ],
+            target_enc_cols=[],
+            std_scale_cols=[]
+        ),
+        use_only_field_goals=True
     )
 
 

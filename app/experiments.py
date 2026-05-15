@@ -25,11 +25,12 @@ def experiment_current_path(experiment_id):
     return base / str(current)
 
 def run_experiment_part(config: RunConfig, path):
-    y_pred, y_test = model_prediction(config)
-    save_classification_run(y_test, y_pred, config, path)
+    config.return_probabilities = True
+    y_proba, y_test = model_prediction(config)
+    save_classification_run(y_test, y_proba[:,1] > config.decision_boundary, config, path,y_proba=y_proba)
 
 def run_grid_search_experiment_part(config: RunConfig, path):
-    y_pred, y_test, grid_search_results = run_grid_search(config, 5)
+    y_pred, y_test, grid_search_results = run_grid_search(config, 3)
     save_classification_run(y_test, y_pred, config, path,"grid_search", {"grid_search_results": grid_search_results})
 
 

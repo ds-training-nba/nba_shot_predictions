@@ -1,0 +1,99 @@
+{
+  "run_id": 1,
+  "context_name": "Light GBM",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "IsClutchTime"
+        ],
+        "std_scale": [
+          "scoreMarginBeforeShot"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.666490221206887,
+      "macro_avg": {
+        "precision": 0.6666947269724178,
+        "recall": 0.6699063129892573,
+        "f1-score": 0.6649736264521223,
+        "support": 107682.0
+      },
+      "weighted_avg": {
+        "precision": 0.6762177501673271,
+        "recall": 0.666490221206887,
+        "f1-score": 0.6680733828535792,
+        "support": 107682.0
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5974444444444444,
+        "recall": 0.694747722721106,
+        "f1-score": 0.6424325696705397,
+        "support": 46437.0
+      },
+      "1.0": {
+        "precision": 0.7359450095003912,
+        "recall": 0.6450649032574087,
+        "f1-score": 0.6875146832337049,
+        "support": 61245.0
+      },
+      "accuracy": 0.666490221206887,
+      "macro avg": {
+        "precision": 0.6666947269724178,
+        "recall": 0.6699063129892573,
+        "f1-score": 0.6649736264521223,
+        "support": 107682.0
+      },
+      "weighted avg": {
+        "precision": 0.6762177501673271,
+        "recall": 0.666490221206887,
+        "f1-score": 0.6680733828535792,
+        "support": 107682.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        32262,
+        14175
+      ],
+      [
+        21738,
+        39507
+      ]
+    ]
+  },
+  "timestamp": "2026-05-12T16:20:00.113801",
+  "additional_infos": {
+    "grid_search_results": {
+      "best_params": {
+        "subsample": 0.8,
+        "num_leaves": 31,
+        "n_estimators": 100,
+        "min_child_samples": 20,
+        "max_depth": 10,
+        "learning_rate": 0.05,
+        "colsample_bytree": 0.8
+      },
+      "best_score": -0.20963021444402644
+    }
+  }
+}
