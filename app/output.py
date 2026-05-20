@@ -150,6 +150,8 @@ def save_classification_run(
             },
             "classification_report": report,
             "confusion_matrix": cm_list,
+            "decomposition_table_10": {} if brier_decomposition_10 is None else brier_decomposition_10['table'].to_dict(),
+            "decomposition_table_20": {} if brier_decomposition_20 is None else brier_decomposition_20['table'].to_dict(),
         },
         "timestamp": datetime.now().isoformat(),
         "additional_infos": additional_infos

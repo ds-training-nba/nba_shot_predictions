@@ -103,6 +103,7 @@ MODEL_ID_RANDOM_FOREST = "RandomForest"
 MODEL_ID_LOGISTIC_REGRESSION = "LogisticRegression"
 MODEL_ID_LIGHT_GBM = "LightGBM"
 MODEL_ID_DECISION_TREE = "DecisionTree"
+MODEL_ID_SIMPLE_LOOKUP = "SimpleLookup"
 
 
 def get_active_columns(config: EncodingConfig):

@@ -2,11 +2,11 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import RFECV
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-from sklearn.svm import SVC
+from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import classification_report
 from lightgbm import LGBMClassifier
 import pandas as pd
+import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 
 import app.conf.run
@@ -88,6 +88,8 @@ def build_model(model_config: ModelConfig):
                 learning_rate=0.05,
                 colsample_bytree=0.8
             )
+        case app.conf.run.MODEL_ID_SIMPLE_LOOKUP:
+            model = SimpleLookupClassifier(["MAIN_ACTION_TYPE", "PLAYER_NAME"])
     if not model_config.wrap_calibrated:
         return model
     else:
@@ -173,3 +175,56 @@ def run_feature_selection(config: RunConfig):
     selected_features = X_train.columns[rfecv.support_]
     rejected_features = X_train.columns[~rfecv.support_]
     return  ranking, y_pred, y_test
+
+class SimpleLookupClassifier:
+    def __init__(self, cols):
+        self.cols = cols
+        self.lookup_dict = {}
+        self.global_mean = 0.5
+
+    def fit(self, X_train: pd.DataFrame, y_train):
+        train_lookup = X_train.copy()
+
+        train_lookup["y"] = y_train.values
+        self.global_mean = y_train.mean()
+        lookup_table = (
+            train_lookup
+            .groupby(
+                ["MAIN_ACTION_TYPE", "PLAYER_NAME"]
+            )["y"]
+            .mean()
+            .reset_index()
+            .rename(columns={"y": "p_make"})
+        )
+        self.lookup_dict = {
+            (
+                row["MAIN_ACTION_TYPE"],
+                row["PLAYER_NAME"]
+            ): row["p_make"]
+
+            for _, row in lookup_table.iterrows()
+        }
+
+    def predict(self, X):
+
+        probs = self.predict_proba(X)
+        predictions = (probs[:,1] >= 0.5).astype(int)
+
+        return predictions
+
+    def predict_proba(self, X):
+        probs = []
+
+        for _, row in X.iterrows():
+            key = (
+                row["MAIN_ACTION_TYPE"],
+                row["PLAYER_NAME"]
+            )
+
+            # fallback to global mean if unseen
+            p = self.lookup_dict.get(key, self.global_mean)
+
+            probs.append([(1-p),p]) # sklearn compatible probs: [0-prob 1-prob]
+
+        return np.array(probs)
+

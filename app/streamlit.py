@@ -14,6 +14,14 @@ def sl_show_experiment_results(experiment_id: str):
                       'macro_avg_recall', 'macro_avg_f1-score']
     if 'metric_brier_score' in df.columns:
         default_fields.insert(2,'metric_brier_score')
+    if 'brier_decomposition_10_resolution' in df.columns:
+        default_fields.insert(2,'brier_decomposition_10_resolution')
+    if 'brier_decomposition_10_reliability' in df.columns:
+        default_fields.insert(2, 'brier_decomposition_10_reliability')
+    if 'brier_decomposition_20_resolution' in df.columns:
+        default_fields.insert(2,'brier_decomposition_20_resolution')
+    if 'brier_decomposition_20_reliability' in df.columns:
+        default_fields.insert(2, 'brier_decomposition_20_reliability')
     st.dataframe(df[default_fields])
 
 def sl_show_false_predictions():
