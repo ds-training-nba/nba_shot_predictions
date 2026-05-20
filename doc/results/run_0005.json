@@ -1,0 +1,93 @@
+{
+  "run_id": 5,
+  "context_name": "default",
+  "input": {
+    "model": {
+      "name": "SimpleLookup",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6633416458852868,
+      "macro_avg": {
+        "precision": 0.6613513893305167,
+        "recall": 0.6643355828517138,
+        "f1-score": 0.6609126928729083,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6702117528156087,
+        "recall": 0.6633416458852868,
+        "f1-score": 0.6648795457345548,
+        "support": 105062.0
+      },
+      "brier_score": 0.2116482546117968,
+      "expected_calibration_error_10": 0.0028846119467596226,
+      "expected_calibration_error_20": 0.0035847007755747235,
+      "brier_decomposition_10": {
+        "brier_score": 0.2119661887707966,
+        "reliability": 1.2285775929743853e-05,
+        "resolution": 0.03326968759117283,
+        "uncertainty": 0.24522359058603968
+      },
+      "brier_decomposition_20": {
+        "brier_score": 0.2117306040935386,
+        "reliability": 1.989075256891853e-05,
+        "resolution": 0.033512877245069995,
+        "uncertainty": 0.24522359058603968
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5972495088408645,
+        "recall": 0.6715263971725204,
+        "f1-score": 0.632213788083602,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7254532698201691,
+        "recall": 0.6571447685309072,
+        "f1-score": 0.6896115976622146,
+        "support": 59792.0
+      },
+      "accuracy": 0.6633416458852868,
+      "macro avg": {
+        "precision": 0.6613513893305167,
+        "recall": 0.6643355828517138,
+        "f1-score": 0.6609126928729083,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6702117528156087,
+        "recall": 0.6633416458852868,
+        "f1-score": 0.6648795457345548,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        30400,
+        14870
+      ],
+      [
+        20500,
+        39292
+      ]
+    ]
+  },
+  "timestamp": "2026-05-20T12:16:52.370500",
+  "additional_infos": {}
+}
