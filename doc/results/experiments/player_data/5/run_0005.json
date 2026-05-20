@@ -1,0 +1,86 @@
+{
+  "run_id": 5,
+  "context_name": "age and best age",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "player_age",
+          "best_age"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6682625497325388,
+      "macro_avg": {
+        "precision": 0.6674975065503519,
+        "recall": 0.670737856185812,
+        "f1-score": 0.6663958490101953,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6767867683327267,
+        "recall": 0.6682625497325388,
+        "f1-score": 0.66984517181079,
+        "support": 105062.0
+      },
+      "brier_score": 0.20790917553598898
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6002926848054224,
+        "recall": 0.6886459023635962,
+        "f1-score": 0.6414411077847392,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7347023282952813,
+        "recall": 0.6528298100080279,
+        "f1-score": 0.6913505902356515,
+        "support": 59792.0
+      },
+      "accuracy": 0.6682625497325388,
+      "macro avg": {
+        "precision": 0.6674975065503519,
+        "recall": 0.670737856185812,
+        "f1-score": 0.6663958490101953,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6767867683327267,
+        "recall": 0.6682625497325388,
+        "f1-score": 0.66984517181079,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31175,
+        14095
+      ],
+      [
+        20758,
+        39034
+      ]
+    ]
+  },
+  "timestamp": "2026-05-19T14:04:56.853014",
+  "additional_infos": {}
+}

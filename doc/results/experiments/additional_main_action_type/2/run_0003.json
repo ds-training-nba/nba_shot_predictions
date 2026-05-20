@@ -1,0 +1,97 @@
+{
+  "run_id": 3,
+  "context_name": "Only Field Goals: Best including MAIN_ACTION_TYPE",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR",
+          "MAIN_ACTION_TYPE"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "TimeRemainingInGame",
+          "TimeRemainingInPeriod",
+          "IsClutchTime",
+          "year",
+          "player_age",
+          "best_age"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6275514862203441,
+      "macro_avg": {
+        "precision": 0.6407397826277339,
+        "recall": 0.6217754637604216,
+        "f1-score": 0.6120057975061411,
+        "support": 76671.0
+      },
+      "weighted_avg": {
+        "precision": 0.6395922228914674,
+        "recall": 0.6275514862203441,
+        "f1-score": 0.6144946068611158,
+        "support": 76671.0
+      },
+      "brier_score": 0.2239312854377545
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.604930033934495,
+        "recall": 0.8020169851380042,
+        "f1-score": 0.6896694125062488,
+        "support": 39564.0
+      },
+      "1.0": {
+        "precision": 0.6765495313209728,
+        "recall": 0.44153394238283883,
+        "f1-score": 0.5343421825060335,
+        "support": 37107.0
+      },
+      "accuracy": 0.6275514862203441,
+      "macro avg": {
+        "precision": 0.6407397826277339,
+        "recall": 0.6217754637604216,
+        "f1-score": 0.6120057975061411,
+        "support": 76671.0
+      },
+      "weighted avg": {
+        "precision": 0.6395922228914674,
+        "recall": 0.6275514862203441,
+        "f1-score": 0.6144946068611158,
+        "support": 76671.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31731,
+        7833
+      ],
+      [
+        20723,
+        16384
+      ]
+    ]
+  },
+  "timestamp": "2026-05-19T15:51:45.674207",
+  "additional_infos": {},
+  "train_result": {
+    "metrics": {
+      "accuracy": 0.6320281879985081,
+      "brier_score": 0.22213937578279003
+    }
+  }
+}

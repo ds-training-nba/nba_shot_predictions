@@ -1,0 +1,86 @@
+{
+  "run_id": 2,
+  "context_name": "Using Time Left std scaled",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs"
+        ],
+        "std_scale": [
+          "TimeRemainingInGame"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6673773581313891,
+      "macro_avg": {
+        "precision": 0.6673471306288772,
+        "recall": 0.6706066473339076,
+        "f1-score": 0.6657708130425051,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6768898217479791,
+        "recall": 0.6673773581313891,
+        "f1-score": 0.6689737575483774,
+        "support": 105062.0
+      },
+      "brier_score": 0.2080984382652798
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5983088291307991,
+        "recall": 0.6939695162359178,
+        "f1-score": 0.6425985395487738,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7363854321269552,
+        "recall": 0.6472437784318973,
+        "f1-score": 0.6889430865362363,
+        "support": 59792.0
+      },
+      "accuracy": 0.6673773581313891,
+      "macro avg": {
+        "precision": 0.6673471306288772,
+        "recall": 0.6706066473339076,
+        "f1-score": 0.6657708130425051,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6768898217479791,
+        "recall": 0.6673773581313891,
+        "f1-score": 0.6689737575483774,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31416,
+        13854
+      ],
+      [
+        21092,
+        38700
+      ]
+    ]
+  },
+  "timestamp": "2026-05-19T14:22:16.452131",
+  "additional_infos": {}
+}

@@ -1,0 +1,85 @@
+{
+  "run_id": 3,
+  "context_name": "experience",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "years_experience"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6677200129447374,
+      "macro_avg": {
+        "precision": 0.6666635682278773,
+        "recall": 0.6698668734478628,
+        "f1-score": 0.6657351046790301,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6758502090531718,
+        "recall": 0.6677200129447374,
+        "f1-score": 0.6692954848463475,
+        "support": 105062.0
+      },
+      "brier_score": 0.2079403440588318
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6002011761064686,
+        "recall": 0.6853987187983211,
+        "f1-score": 0.6399768991192789,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.733125960349286,
+        "recall": 0.6543350280974043,
+        "f1-score": 0.6914933102387811,
+        "support": 59792.0
+      },
+      "accuracy": 0.6677200129447374,
+      "macro avg": {
+        "precision": 0.6666635682278773,
+        "recall": 0.6698668734478628,
+        "f1-score": 0.6657351046790301,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6758502090531718,
+        "recall": 0.6677200129447374,
+        "f1-score": 0.6692954848463475,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31028,
+        14242
+      ],
+      [
+        20668,
+        39124
+      ]
+    ]
+  },
+  "timestamp": "2026-05-18T16:42:36.912738",
+  "additional_infos": {}
+}

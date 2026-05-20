@@ -1,0 +1,110 @@
+{
+  "run_id": 1,
+  "context_name": "Best (including MAIN_ACTION_TYPE) ",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "TimeRemainingInGame",
+          "TimeRemainingInPeriod",
+          "IsClutchTime",
+          "year",
+          "player_age",
+          "best_age",
+          "ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR",
+          "MAIN_ACTION_TYPE"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6747825093754164,
+      "macro_avg": {
+        "precision": 0.6735619429323895,
+        "recall": 0.6768818377458615,
+        "f1-score": 0.6727725833149286,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6826704043330257,
+        "recall": 0.6747825093754164,
+        "f1-score": 0.6763174152617837,
+        "support": 105062.0
+      },
+      "brier_score": 0.20509657728677974,
+      "expected_calibration_error_10": 0.005158429627268743,
+      "expected_calibration_error_20": 0.006565234581306262,
+      "brier_decomposition_10": {
+        "brier_score": 0.20598310514715695,
+        "reliability": 6.04413101651334e-05,
+        "resolution": 0.03930092674904787,
+        "uncertainty": 0.24522359058603968
+      },
+      "brier_decomposition_20": {
+        "brier_score": 0.20534746508616342,
+        "reliability": 7.966647095910625e-05,
+        "resolution": 0.03995579197083536,
+        "uncertainty": 0.24522359058603968
+      }
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6076651538073626,
+        "recall": 0.6920698034018113,
+        "f1-score": 0.6471268641302103,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7394587320574163,
+        "recall": 0.6616938720899117,
+        "f1-score": 0.698418302499647,
+        "support": 59792.0
+      },
+      "accuracy": 0.6747825093754164,
+      "macro avg": {
+        "precision": 0.6735619429323895,
+        "recall": 0.6768818377458615,
+        "f1-score": 0.6727725833149286,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6826704043330257,
+        "recall": 0.6747825093754164,
+        "f1-score": 0.6763174152617837,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31330,
+        13940
+      ],
+      [
+        20228,
+        39564
+      ]
+    ]
+  },
+  "timestamp": "2026-05-20T09:50:04.411450",
+  "additional_infos": {},
+  "train_result": {
+    "metrics": {
+      "accuracy": 0.6792157442113717,
+      "brier_score": 0.20345213196314227
+    }
+  }
+}

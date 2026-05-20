@@ -1,0 +1,85 @@
+{
+  "run_id": 2,
+  "context_name": "player age",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "player_age"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6683101406788372,
+      "macro_avg": {
+        "precision": 0.6673906458160018,
+        "recall": 0.6706187166390059,
+        "f1-score": 0.6663835155062572,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6766250195352937,
+        "recall": 0.6683101406788372,
+        "f1-score": 0.6698878304807321,
+        "support": 105062.0
+      },
+      "brier_score": 0.20794623772303866
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6005829215565164,
+        "recall": 0.6873205213165452,
+        "f1-score": 0.6410309235872185,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7341983700754873,
+        "recall": 0.6539169119614664,
+        "f1-score": 0.6917361074252959,
+        "support": 59792.0
+      },
+      "accuracy": 0.6683101406788372,
+      "macro avg": {
+        "precision": 0.6673906458160018,
+        "recall": 0.6706187166390059,
+        "f1-score": 0.6663835155062572,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6766250195352937,
+        "recall": 0.6683101406788372,
+        "f1-score": 0.6698878304807321,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31115,
+        14155
+      ],
+      [
+        20693,
+        39099
+      ]
+    ]
+  },
+  "timestamp": "2026-05-18T16:42:33.847499",
+  "additional_infos": {}
+}
