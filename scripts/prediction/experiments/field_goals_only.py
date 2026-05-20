@@ -1,7 +1,7 @@
 import pandas as pd
 import copy
 
-from app.conf.run import build_default_run_config, MODEL_ID_RANDOM_FOREST, MODEL_ID_SVM, MODEL_ID_LOGISTIC_REGRESSION, \
+from app.conf.run import build_default_run_config, MODEL_ID_RANDOM_FOREST,  MODEL_ID_LOGISTIC_REGRESSION, \
     MODEL_ID_LIGHT_GBM
 from app.experiments import run_experiment, load_runs_to_dataframe, experiment_current_path
 

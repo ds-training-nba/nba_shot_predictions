@@ -26,8 +26,10 @@ def experiment_current_path(experiment_id):
 
 def run_experiment_part(config: RunConfig, path):
     config.return_probabilities = True
-    y_proba, y_test = model_prediction(config)
-    save_classification_run(y_test, y_proba[:,1] > config.decision_boundary, config, path,y_proba=y_proba)
+    y_proba, y_test, y_proba_train, y_train = model_prediction(config)
+
+    save_classification_run(y_test, y_proba[:,1] > config.decision_boundary, config, path,
+                            y_proba=y_proba, y_proba_train=y_proba_train, y_true_train=y_train,y_pred_train=y_proba_train[:,1] > config.decision_boundary)
 
 def run_grid_search_experiment_part(config: RunConfig, path):
     y_pred, y_test, grid_search_results = run_grid_search(config, 3)
@@ -75,9 +77,24 @@ def load_runs_to_dataframe(directory="runs"):
         for k, v in data.get("result").get("metrics", {}).items():
             if isinstance(v, dict):
                 for sub_k, sub_v in v.items():
-                    flat[f"{k}_{sub_k}"] = sub_v
+                    if isinstance(sub_v, dict):
+                        for sub_sub_k, sub_sub_v in sub_v.items():
+                            flat[f"{k}_{sub_k}_{sub_sub_k}"] = sub_sub_v
+                    else:
+                        flat[f"{k}_{sub_k}"] = sub_v
             else:
                 flat[f"metric_{k}"] = v
+        for k, v in data.get("train_result").get("metrics", {}).items():
+            if isinstance(v, dict):
+                for sub_k, sub_v in v.items():
+                    if isinstance(sub_v, dict):
+                        for sub_sub_k, sub_sub_v in sub_v.items():
+                            flat[f"{k}_{sub_k}_{sub_sub_k}"] = sub_sub_v
+                    else:
+                        flat[f"{k}_{sub_k}"] = sub_v
+            else:
+                flat[f"metric_{k}"] = v
+
 
         # Optional: wichtigste Scores direkt ziehen
         report = data.get("result").get("classification_report", {})

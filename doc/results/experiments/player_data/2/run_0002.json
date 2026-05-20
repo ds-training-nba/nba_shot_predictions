@@ -1,0 +1,86 @@
+{
+  "run_id": 2,
+  "context_name": "player age",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs"
+        ],
+        "std_scale": [
+          "player_age"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6680817041366051,
+      "macro_avg": {
+        "precision": 0.6673203678914766,
+        "recall": 0.6705575118994356,
+        "f1-score": 0.6662154194528939,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6766112291954722,
+        "recall": 0.6680817041366051,
+        "f1-score": 0.6696652904020861,
+        "support": 105062.0
+      },
+      "brier_score": 0.2079431420303979
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6001039741219963,
+        "recall": 0.6884691848906561,
+        "f1-score": 0.6412567125486082,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7345367616609569,
+        "recall": 0.6526458389082151,
+        "f1-score": 0.6911741263571796,
+        "support": 59792.0
+      },
+      "accuracy": 0.6680817041366051,
+      "macro avg": {
+        "precision": 0.6673203678914766,
+        "recall": 0.6705575118994356,
+        "f1-score": 0.6662154194528939,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6766112291954722,
+        "recall": 0.6680817041366051,
+        "f1-score": 0.6696652904020861,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31167,
+        14103
+      ],
+      [
+        20769,
+        39023
+      ]
+    ]
+  },
+  "timestamp": "2026-05-18T16:03:37.541158",
+  "additional_infos": {}
+}

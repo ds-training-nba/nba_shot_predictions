@@ -6,11 +6,14 @@ import pandas as pd
 from app.conf.run import RunConfig
 from app.config import TARGET_VARIABLE
 from processing.compute_columns import add_computed_feature_columns, add_is_home_column, add_opponent_interfered_column, \
-    add_angle_column, add_shot_main_action_type_column
+    add_angle_column, add_shot_main_action_type_column, add_player_data, determine_best_age_per_player, \
+    add_best_age_data, add_last_match_precision, add_last_match_precisions_for_prediction
 from processing.encoding import encode_for_model
 from processing.filtering import filter_clean_source_columns, filter_pre_encoding_columns, filter_for_players
 from processing.fixes import fix_action_type_target_leak
 from processing.preprocessing import preprocess_fields
+
+
 
 def get_shots_dataframe(use_small = False):
     """
@@ -109,15 +112,31 @@ def test_train_dataset():
             "test": "processed/processed_20_players_test.parquet"
         }
     )
+    # enrich with well known facts about the players from another database
+    train = add_player_data(ds['train'].to_pandas())
+    test = add_player_data(ds['test'].to_pandas())
+    # determine best age from train and add column to test and train
+    best_ages = determine_best_age_per_player(train)
+    train = add_best_age_data(train, best_ages)
+    test = add_best_age_data(test, best_ages)
+    # consecutively add the precision of the last match to the data of the next match.
+    train = add_last_match_precision(train)
+    # get precision data only from train
+    test = add_last_match_precisions_for_prediction(train, test)
+
     return {
-        "train": ds['train'].to_pandas(),
-        "test": ds['test'].to_pandas(),
+        "train": train,
+        "test": test,
     }
+def full_dataset():
+    ds = test_train_dataset()
+    return pd.concat([ds['train'],ds['test']], axis=0)
 
 def ready_split_dataset(config: RunConfig):
     dataset = test_train_dataset()
     df_train = dataset['train']
     df_test = dataset['test']
+
     if config.use_only_field_goals:
         df_train = df_train[df_train['points'] != 1]
         df_test = df_test[df_test['points'] != 1]

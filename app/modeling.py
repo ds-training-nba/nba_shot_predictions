@@ -25,7 +25,8 @@ def model_prediction(config: RunConfig):
     model.fit(X_train, y_train)
 
     y_pred = predict(model, X_test) if not config.return_probabilities else predict_probabilities(model, X_test)
-    return y_pred, y_test
+    y_pred_train = predict(model, X_train) if not config.return_probabilities else predict_probabilities(model, X_train)
+    return y_pred, y_test, y_pred_train, y_train
 
 
 

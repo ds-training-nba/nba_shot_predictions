@@ -1,0 +1,87 @@
+{
+  "run_id": 6,
+  "context_name": "age and best age and year",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "player_age",
+          "best_age",
+          "year"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6683482134358759,
+      "macro_avg": {
+        "precision": 0.6676492381438126,
+        "recall": 0.6708962751898209,
+        "f1-score": 0.6665072201618552,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6769616410716502,
+        "recall": 0.6683482134358759,
+        "f1-score": 0.6699321374466785,
+        "support": 105062.0
+      },
+      "brier_score": 0.20777177046210793
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6002769976532143,
+        "recall": 0.6893306825712392,
+        "f1-score": 0.6417290449946533,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.735021478634411,
+        "recall": 0.6524618678084024,
+        "f1-score": 0.691285395329057,
+        "support": 59792.0
+      },
+      "accuracy": 0.6683482134358759,
+      "macro avg": {
+        "precision": 0.6676492381438126,
+        "recall": 0.6708962751898209,
+        "f1-score": 0.6665072201618552,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6769616410716502,
+        "recall": 0.6683482134358759,
+        "f1-score": 0.6699321374466785,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31206,
+        14064
+      ],
+      [
+        20780,
+        39012
+      ]
+    ]
+  },
+  "timestamp": "2026-05-18T16:42:46.251477",
+  "additional_infos": {}
+}

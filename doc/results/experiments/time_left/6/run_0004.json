@@ -1,0 +1,85 @@
+{
+  "run_id": 4,
+  "context_name": "Using IsClutchTime",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "IsClutchTime"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6669966305610021,
+      "macro_avg": {
+        "precision": 0.6670032102442268,
+        "recall": 0.6702560593091171,
+        "f1-score": 0.6654006473568037,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6765582262232438,
+        "recall": 0.6669966305610021,
+        "f1-score": 0.6685948133010386,
+        "support": 105062.0
+      },
+      "brier_score": 0.20818532647229301
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5978757423481041,
+        "recall": 0.6938369781312127,
+        "f1-score": 0.642291883933501,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7361306781403495,
+        "recall": 0.6466751404870217,
+        "f1-score": 0.6885094107801065,
+        "support": 59792.0
+      },
+      "accuracy": 0.6669966305610021,
+      "macro avg": {
+        "precision": 0.6670032102442268,
+        "recall": 0.6702560593091171,
+        "f1-score": 0.6654006473568037,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6765582262232438,
+        "recall": 0.6669966305610021,
+        "f1-score": 0.6685948133010386,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31410,
+        13860
+      ],
+      [
+        21126,
+        38666
+      ]
+    ]
+  },
+  "timestamp": "2026-05-19T14:20:44.066935",
+  "additional_infos": {}
+}

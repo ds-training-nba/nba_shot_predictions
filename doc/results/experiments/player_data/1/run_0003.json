@@ -1,0 +1,86 @@
+{
+  "run_id": 3,
+  "context_name": "experience",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs"
+        ],
+        "std_scale": [
+          "years_experience"
+        ]
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.667672421998439,
+      "macro_avg": {
+        "precision": 0.666575931634567,
+        "recall": 0.669774093966809,
+        "f1-score": 0.6656709151577623,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6757483009111515,
+        "recall": 0.667672421998439,
+        "f1-score": 0.6692464942376377,
+        "support": 105062.0
+      },
+      "brier_score": 0.20796097243868558
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6002167895786152,
+        "recall": 0.6849790148000884,
+        "f1-score": 0.6398027503533369,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7329350736905186,
+        "recall": 0.6545691731335296,
+        "f1-score": 0.6915390799621878,
+        "support": 59792.0
+      },
+      "accuracy": 0.667672421998439,
+      "macro avg": {
+        "precision": 0.666575931634567,
+        "recall": 0.669774093966809,
+        "f1-score": 0.6656709151577623,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6757483009111515,
+        "recall": 0.667672421998439,
+        "f1-score": 0.6692464942376377,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31009,
+        14261
+      ],
+      [
+        20654,
+        39138
+      ]
+    ]
+  },
+  "timestamp": "2026-05-18T16:01:23.107332",
+  "additional_infos": {}
+}

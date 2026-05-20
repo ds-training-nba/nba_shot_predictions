@@ -1,0 +1,97 @@
+{
+  "run_id": 1,
+  "context_name": "Best (including MAIN_ACTION_TYPE) ",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR",
+          "MAIN_ACTION_TYPE"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "TimeRemainingInGame",
+          "TimeRemainingInPeriod",
+          "IsClutchTime",
+          "year",
+          "player_age",
+          "best_age"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6733547809864652,
+      "macro_avg": {
+        "precision": 0.6724313408591883,
+        "recall": 0.6757562502663679,
+        "f1-score": 0.6714555450190395,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6816543102734347,
+        "recall": 0.6733547809864652,
+        "f1-score": 0.67490831225977,
+        "support": 105062.0
+      },
+      "brier_score": 0.2056061145001077
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.6057061230792989,
+        "recall": 0.6931301082394522,
+        "f1-score": 0.6464758843768671,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7391565586390777,
+        "recall": 0.6583823922932834,
+        "f1-score": 0.6964352056612119,
+        "support": 59792.0
+      },
+      "accuracy": 0.6733547809864652,
+      "macro avg": {
+        "precision": 0.6724313408591883,
+        "recall": 0.6757562502663679,
+        "f1-score": 0.6714555450190395,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6816543102734347,
+        "recall": 0.6733547809864652,
+        "f1-score": 0.67490831225977,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31378,
+        13892
+      ],
+      [
+        20426,
+        39366
+      ]
+    ]
+  },
+  "timestamp": "2026-05-19T15:51:24.231003",
+  "additional_infos": {},
+  "train_result": {
+    "metrics": {
+      "accuracy": 0.6765850368990061,
+      "brier_score": 0.2043024150250666
+    }
+  }
+}

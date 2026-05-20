@@ -1,0 +1,85 @@
+{
+  "run_id": 6,
+  "context_name": "Using Time Remaining in Period",
+  "input": {
+    "model": {
+      "name": "LightGBM",
+      "parameters": {}
+    },
+    "features": {
+      "encoding": {
+        "one_hot": [
+          "MAIN_ACTION_TYPE",
+          "PLAYER_ID",
+          "SHOT_TYPE",
+          "ANGLE_SECTOR"
+        ],
+        "target_enc": [],
+        "passthrough": [
+          "SHOT_DISTANCE",
+          "IS_HOME",
+          "is_playoffs",
+          "TimeRemainingInPeriod"
+        ],
+        "std_scale": []
+      }
+    }
+  },
+  "result": {
+    "metrics": {
+      "accuracy": 0.6677580857017761,
+      "macro_avg": {
+        "precision": 0.6675582150953929,
+        "recall": 0.6708204268723579,
+        "f1-score": 0.666095299667898,
+        "support": 105062.0
+      },
+      "weighted_avg": {
+        "precision": 0.6770435776636783,
+        "recall": 0.6677580857017761,
+        "f1-score": 0.6693522431240589,
+        "support": 105062.0
+      },
+      "brier_score": 0.2080164212467715
+    },
+    "classification_report": {
+      "0.0": {
+        "precision": 0.5989346672266982,
+        "recall": 0.6929754804506295,
+        "f1-score": 0.6425323611338686,
+        "support": 45270.0
+      },
+      "1.0": {
+        "precision": 0.7361817629640878,
+        "recall": 0.6486653732940861,
+        "f1-score": 0.6896582382019275,
+        "support": 59792.0
+      },
+      "accuracy": 0.6677580857017761,
+      "macro avg": {
+        "precision": 0.6675582150953929,
+        "recall": 0.6708204268723579,
+        "f1-score": 0.666095299667898,
+        "support": 105062.0
+      },
+      "weighted avg": {
+        "precision": 0.6770435776636783,
+        "recall": 0.6677580857017761,
+        "f1-score": 0.6693522431240589,
+        "support": 105062.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        31371,
+        13899
+      ],
+      [
+        21007,
+        38785
+      ]
+    ]
+  },
+  "timestamp": "2026-05-19T14:21:00.667422",
+  "additional_infos": {}
+}

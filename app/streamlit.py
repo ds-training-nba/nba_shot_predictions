@@ -10,7 +10,10 @@ from evaluation.insights import get_false_predictions
 def sl_show_experiment_results(experiment_id: str):
     df = load_runs_to_dataframe(experiment_current_path(experiment_id))
     st.title("Experiment Dashboard for " + experiment_id)
-    default_fields = ['model', 'context_name', 'metric_accuracy', 'macro_avg_precision', 'macro_avg_recall', 'macro_avg_f1-score' ]
+    default_fields = ['model', 'context_name', 'metric_accuracy', 'macro_avg_precision',
+                      'macro_avg_recall', 'macro_avg_f1-score']
+    if 'metric_brier_score' in df.columns:
+        default_fields.insert(2,'metric_brier_score')
     st.dataframe(df[default_fields])
 
 def sl_show_false_predictions():
