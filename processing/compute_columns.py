@@ -3,6 +3,9 @@ from math import atan2
 import numpy as np
 import pandas as pd
 
+from app.config import TARGET_VARIABLE
+from processing.helpers import shot_accuracy_by_fields
+
 
 def add_is_home_column(df: pd.DataFrame):
     def is_home(row):
@@ -85,6 +88,67 @@ def fill_time_features(df):
                                 ).astype('int8')
     return df
 
+
+def add_player_data(df: pd.DataFrame):
+    df_players = pd.read_csv('data/orig/player_data.csv')
+    df = df.merge(df_players, left_on="PLAYER_NAME", right_on="name")
+
+    df['GAME_DATE'] = pd.to_datetime(
+        df['GAME_DATE'].astype(str).apply(lambda val: val[:-2]),
+        format='%Y%m%d',
+        errors='coerce'
+    )
+    df['year'] = df['GAME_DATE'].dt.year
+    df['years_experience'] = df['GAME_DATE'].dt.year - df['year_start']
+    df['player_age'] = df['GAME_DATE'].dt.year - df['birth_date'].apply(lambda val: val[-4:]).astype(float)
+    return df
+def determine_best_age_per_player(df: pd.DataFrame):
+    df_accuracy_by_age = shot_accuracy_by_fields(df, ['PLAYER_NAME', 'player_age']).reset_index()
+    best_age_per_player = {}
+    for name in df_accuracy_by_age['PLAYER_NAME'].unique():
+        best_age_per_player[name] = df_accuracy_by_age.loc[
+            df_accuracy_by_age[df_accuracy_by_age['PLAYER_NAME'] == name][TARGET_VARIABLE].argmax()]['player_age']
+    return best_age_per_player
+
+def add_last_match_precisions_for_prediction(df_train: pd.DataFrame, df_prediction: pd.DataFrame):
+    last_match_precisions_per_player = {}
+    for name in df_train['PLAYER_NAME'].unique():
+        df_sorted = df_train[df_train['PLAYER_NAME'] == name].sort_values(ascending=False, by="GAME_DATE")
+        last_match_precisions_per_player[name] = df_sorted.iloc[0]['last_match_precision']
+    df_prediction['last_match_precision'] = df_prediction.apply(lambda row: last_match_precisions_per_player[row['PLAYER_NAME']], axis=1)
+    return df_prediction
+
+def add_last_match_precision(df: pd.DataFrame):
+    df_accuracy_per_player = shot_accuracy_by_fields(df, ['PLAYER_NAME'])
+    df_accuracy_per_player_and_match = shot_accuracy_by_fields(df, ['PLAYER_NAME', 'GAME_ID_x'])
+    precisions ={}
+    for name in df['PLAYER_NAME'].unique():
+        player_average = df_accuracy_per_player.loc[name, TARGET_VARIABLE]
+        # Sort players matches from first to last
+        df_sorted = df[df['PLAYER_NAME'] == name].sort_values(ascending=True,by="GAME_DATE")
+        last_precision = player_average # initial value, begin with average
+        precisions[name] = {}
+        for match_id in df_sorted['GAME_ID_x'].unique():
+            last_relative_precision = last_precision/player_average
+            precisions[name][match_id] = last_relative_precision
+            # precision
+            new_precision = df_accuracy_per_player_and_match.loc[(name,match_id)][TARGET_VARIABLE]
+            if new_precision > 0:
+                last_precision = new_precision
+            else:
+                # print('Match Precision is 0', name, match_id)
+                # Player seems to not have scored in the match. Maybe due to short appearance in the match and
+                # injury/pause. Don't set last match precision to 0, to not confuse the algorithm, but
+                last_precision *= 0.7
+
+    df['last_match_precision'] = df.apply(lambda row: precisions[row['PLAYER_NAME']][row['GAME_ID_x']], axis=1)
+    return df
+
+def add_best_age_data(df: pd.DataFrame, best_ages):
+    def best_age(name):
+        return best_ages[name]
+    df['best_age'] = df['PLAYER_NAME'].apply(best_age)
+    return df
 
 def add_opponent_interfered_column(df: pd.DataFrame):
     def opponent_interfered(row):

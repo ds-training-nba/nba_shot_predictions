@@ -5,6 +5,7 @@ from datetime import datetime
 from sklearn.metrics import classification_report, confusion_matrix, brier_score_loss
 
 from app.conf.run import RunConfig
+from evaluation.custom_scores import expected_calibration_error, brier_decomposition
 
 
 def get_next_run_id(output_dir, prefix="run"):
@@ -64,7 +65,10 @@ def save_classification_run(
     output_dir="runs",
     prefix="run",
     additional_infos = None,
-    y_proba = None
+    y_proba = None,
+    y_true_train = None,
+    y_pred_train = None,
+    y_proba_train = None
 ):
     os.makedirs(output_dir, exist_ok=True)
 
@@ -78,6 +82,32 @@ def save_classification_run(
     cm_list = cm.tolist()
     if additional_infos is None:
         additional_infos = {}
+    ece_10 = None
+    ece_20 = None
+    brier_decomposition_10 = None
+    brier_decomposition_20 = None
+    if y_proba is not None:
+        ece_10, calibration_table = expected_calibration_error(
+            y_true,
+            y_proba[:,1],
+            n_bins=10,
+        )
+        ece_20, calibration_table = expected_calibration_error(
+            y_true,
+            y_proba[:,1],
+            n_bins=20,
+        )
+        brier_decomposition_10 = brier_decomposition(
+            y_true,
+            y_proba[:,1],
+            n_bins=10,
+        )
+        brier_decomposition_20 = brier_decomposition(
+            y_true,
+            y_proba[:,1],
+            n_bins=20,
+        )
+
     result = {
         "run_id": run_id,
         "context_name": config.context_name,
@@ -100,7 +130,23 @@ def save_classification_run(
                 "accuracy": report.get("accuracy"),
                 "macro_avg": report.get("macro avg"),
                 "weighted_avg": report.get("weighted avg"),
-                "brier_score": "n/a" if y_proba is None else brier_score_loss(y_true, y_proba)
+                "brier_score": "n/a" if y_proba is None else brier_score_loss(y_true, y_proba),
+                "expected_calibration_error_10": "n/a" if ece_10 is None else ece_10,
+                "expected_calibration_error_20": "n/a" if ece_20 is None else ece_20,
+                "brier_decomposition_10": {} if brier_decomposition_10 is None else
+                {
+                    "brier_score": brier_decomposition_10['brier_score'],
+                    "reliability": brier_decomposition_10['reliability'],
+                    "resolution": brier_decomposition_10['resolution'],
+                    "uncertainty": brier_decomposition_10['uncertainty'],
+                },
+                "brier_decomposition_20": {} if brier_decomposition_20 is None else
+                {
+                    "brier_score": brier_decomposition_20['brier_score'],
+                    "reliability": brier_decomposition_20['reliability'],
+                    "resolution": brier_decomposition_20['resolution'],
+                    "uncertainty": brier_decomposition_20['uncertainty'],
+                },
             },
             "classification_report": report,
             "confusion_matrix": cm_list,
@@ -109,6 +155,14 @@ def save_classification_run(
         "additional_infos": additional_infos
     }
 
+    if y_pred_train is not None and y_true_train is not None:
+        train_report = classification_report(y_true_train, y_pred_train, output_dict=True)
+        result["train_result"] = {
+            "metrics": {
+                "accuracy": train_report.get("accuracy"),
+                "brier_score": "n/a" if y_proba_train is None else brier_score_loss(y_true_train, y_proba_train)
+            }
+        }
     filename = f"{prefix}_{run_id:04d}.json"
     filepath = os.path.join(output_dir, filename)
 

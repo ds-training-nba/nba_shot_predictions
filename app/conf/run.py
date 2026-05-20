@@ -16,6 +16,7 @@ class EncodingConfig:
     passthrough_cols: list[str]
     target_enc_cols: list[str]
     std_scale_cols: list[str]
+    str_cat_cols: list[str]
 
 
 @dataclasses.dataclass
@@ -35,14 +36,17 @@ def build_default_run_config():
     return RunConfig(
         model_config=ModelConfig(model_id=MODEL_ID_RANDOM_FOREST),
         encoding_config=EncodingConfig(
-            one_hot_cols=["MAIN_ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE", 'ANGLE_SECTOR'],
+            one_hot_cols=[],
             passthrough_cols=[
                 "SHOT_DISTANCE",
                 "IS_HOME",
                 "is_playoffs",
             ],
             target_enc_cols=[],
-            std_scale_cols=[]
+            std_scale_cols=[],
+            # model type should decide,
+            # whether this is a passed through cat or a OneHot (see encode_for_model function)
+            str_cat_cols=["MAIN_ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE", 'ANGLE_SECTOR']
         )
     )
 
@@ -50,16 +54,23 @@ def build_best_run_config():
     return RunConfig(
         model_config=ModelConfig(model_id=MODEL_ID_LIGHT_GBM),
         encoding_config=EncodingConfig(
-            one_hot_cols=["ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE", 'ANGLE_SECTOR'],
+            one_hot_cols=[],
             passthrough_cols=[
                 "SHOT_DISTANCE",
                 "IS_HOME",
                 "is_playoffs",
                 "TimeRemainingInGame",
-                "IsClutchTime"
+                "TimeRemainingInPeriod",
+                "IsClutchTime",
+                "year",
+                "player_age",
+                "best_age",
             ],
             target_enc_cols=[],
-            std_scale_cols=[]
+            std_scale_cols=[],
+            # model type should decide,
+            # whether this is a passed through cat or a OneHot (see encode_for_model function)
+            str_cat_cols=["ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE", 'ANGLE_SECTOR', "MAIN_ACTION_TYPE"]
         ),
         use_action_type_fix=True
     )
@@ -68,7 +79,7 @@ def build_interpretability_run_config():
     return RunConfig(
         model_config=ModelConfig(model_id=MODEL_ID_LIGHT_GBM),
         encoding_config=EncodingConfig(
-            one_hot_cols=["MAIN_ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE"],
+            one_hot_cols=[],
             passthrough_cols=[
                 "SHOT_DISTANCE",
                 "IS_HOME",
@@ -78,7 +89,10 @@ def build_interpretability_run_config():
                 "ABS_ANGLE"
             ],
             target_enc_cols=[],
-            std_scale_cols=[]
+            std_scale_cols=[],
+            # model type should decide,
+            # whether this is a passed through cat or a OneHot (see encode_for_model function)
+            str_cat_cols=["MAIN_ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE"]
         ),
         use_only_field_goals=True
     )
@@ -93,3 +107,16 @@ MODEL_ID_DECISION_TREE = "DecisionTree"
 
 def get_active_columns(config: EncodingConfig):
     return config.std_scale_cols + config.passthrough_cols + config.one_hot_cols + config.target_enc_cols
+
+def is_tree_based(model_id: str) -> bool:
+    return model_id in {
+        MODEL_ID_DECISION_TREE,
+        MODEL_ID_LIGHT_GBM,
+        MODEL_ID_RANDOM_FOREST,
+    }
+
+def can_handle_categories(model_id: str) -> bool:
+    return model_id in {
+        MODEL_ID_LIGHT_GBM,
+    }
+
