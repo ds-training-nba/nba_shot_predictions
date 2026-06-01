@@ -18,8 +18,14 @@ def preprocess_fields(df):
         df.columns.duplicated(keep='first')
     )]
 
-    # We can fill PLAYER1_TEAM_ABBREVIATION, by checking other rows with same player and team id
-    df['PLAYER1_TEAM_ABBREVIATION'] = df.groupby(['PLAYER_ID', 'TEAM_ID'])['PLAYER1_TEAM_ABBREVIATION'].transform('first')
+    # We can fill empty PLAYER1_TEAM_ABBREVIATION, by checking other rows with same player and team id
+    df['PLAYER1_TEAM_ABBREVIATION'] = (
+        df['PLAYER1_TEAM_ABBREVIATION']
+        .fillna(
+            df.groupby(['PLAYER_ID', 'TEAM_ID'])['PLAYER1_TEAM_ABBREVIATION']
+            .transform('first')
+        )
+    )
     df = df.dropna(subset=['PLAYER1_TEAM_ABBREVIATION']) # drop remaining nans
 
     # Fix minutes and seconds remaining
