@@ -1,5 +1,9 @@
 def preprocess_fields(df):
-    
+    """
+    Apply pre-processing to raw dataframe: NANs etc.
+    :param df: input pd.DataFrame
+    :return: processed pd.DataFrame
+    """
     # Remove rows with inconsistencies in the targets
     shot_result_conv = df['shotResult'].replace({'Made': 1, 'Missed': 0})
     df = df[~(shot_result_conv.notna() & (df['SHOT_MADE_FLAG'] != shot_result_conv))]
