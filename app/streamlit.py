@@ -1,13 +1,18 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-from app.conf.run import build_default_run_config, MODEL_ID_LIGHT_GBM
-from app.experiments import experiment_current_path, load_runs_to_dataframe
 import streamlit as st
 
+from app.conf.run import build_best_run_config
+from app.experiments import experiment_current_path, load_runs_to_dataframe
 from evaluation.insights import get_false_predictions
 
 
 def sl_show_experiment_results(experiment_id: str):
+    """
+    builds a streamlit page with the results table of an experiment
+    :param experiment_id:
+    :return:
+    """
     df = load_runs_to_dataframe(experiment_current_path(experiment_id))
     st.title("Experiment Dashboard for " + experiment_id)
     default_fields = ['model', 'context_name', 'metric_accuracy', 'macro_avg_precision',
@@ -25,8 +30,12 @@ def sl_show_experiment_results(experiment_id: str):
     st.dataframe(df[default_fields])
 
 def sl_show_false_predictions():
-    config = build_default_run_config()
-    config.model_config.model_id = MODEL_ID_LIGHT_GBM
+    """
+    builds a streamlit page to analyze false predictions
+
+    :return:
+    """
+    config = build_best_run_config()
     page_size = 20
     false_positives, false_negatives = get_false_predictions(config)
     total_pages = (len(false_positives) - 1) // page_size + 1

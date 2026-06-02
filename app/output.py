@@ -10,7 +10,7 @@ from evaluation.custom_scores import expected_calibration_error, brier_decomposi
 
 def get_next_run_id(output_dir, prefix="run"):
     """
-    Findet die nächste freie run_id basierend auf vorhandenen Dateien.
+    Finds the next run id for the given directory
     """
     if not os.path.exists(output_dir):
         return 1
@@ -33,6 +33,11 @@ def get_next_run_id(output_dir, prefix="run"):
     return max(ids) + 1 if ids else 1
 
 def numeric_dirs_in_path(path:Path) -> list[Path]:
+    """
+    find all numeric direcotries in a given path
+    :param path:
+    :return:
+    """
     numeric_dirs = sorted(
         (
             p for p in path.iterdir()
@@ -43,6 +48,14 @@ def numeric_dirs_in_path(path:Path) -> list[Path]:
     return numeric_dirs
 
 def current_path_version_for_dirs(dirs: list[Path]) -> int|None:
+    """
+    get the current version directory in a directory
+    /experiments/model_comparison/1
+    /experiments/model_comparison/2
+    => return 2
+    :param dirs:
+    :return:
+    """
     max_number = max(
         (int(p.name) for p in dirs),
         default=None
@@ -50,6 +63,16 @@ def current_path_version_for_dirs(dirs: list[Path]) -> int|None:
     return max_number
 
 def create_new_output_version_dir(path: Path):
+    """
+    Before an experiment run (or what ever use case) create a new version dir according to the last versions
+    existing:
+    /experiments/model_comparison/1
+    /experiments/model_comparison/2
+    ...will create...
+    /experiments/model_comparison/3
+    :param path: the containing directory path
+    :return: the path created
+    """
     dirs_in_path = numeric_dirs_in_path(path)
     current = current_path_version_for_dirs(dirs_in_path)
     next_version = current + 1 if current is not None else 1
@@ -70,6 +93,20 @@ def save_classification_run(
     y_pred_train = None,
     y_proba_train = None
 ):
+    """
+    Save/Log the results of a training + evaluation run
+    :param y_true:
+    :param y_pred:
+    :param config: the RunConfig that produced the result
+    :param output_dir:
+    :param prefix: first part of the logfile
+    :param additional_infos: dict, like GridSearch best parameters
+    :param y_proba: to compute also brier_score
+    :param y_true_train:
+    :param y_pred_train: to estimate overfitting
+    :param y_proba_train:
+    :return: the filepath where the logs have been written to
+    """
     os.makedirs(output_dir, exist_ok=True)
 
     run_id = get_next_run_id(output_dir, prefix)
@@ -87,6 +124,7 @@ def save_classification_run(
     brier_decomposition_10 = None
     brier_decomposition_20 = None
     if y_proba is not None:
+        # how good do we match the calibration curve diagonal line?
         ece_10, calibration_table = expected_calibration_error(
             y_true,
             y_proba[:,1],
@@ -97,6 +135,7 @@ def save_classification_run(
             y_proba[:,1],
             n_bins=20,
         )
+        # murphy decomposition of brier_score in resolution, reliability and uncertainty
         brier_decomposition_10 = brier_decomposition(
             y_true,
             y_proba[:,1],
@@ -122,6 +161,7 @@ def save_classification_run(
                     "target_enc": config.encoding_config.target_enc_cols,
                     "passthrough": config.encoding_config.passthrough_cols,
                     "std_scale": config.encoding_config.std_scale_cols,
+                    "str_cat_cols": config.encoding_config.str_cat_cols,
                 }
             }
         },
@@ -157,6 +197,7 @@ def save_classification_run(
         "additional_infos": additional_infos
     }
 
+    # add training results if given
     if y_pred_train is not None and y_true_train is not None:
         train_report = classification_report(y_true_train, y_pred_train, output_dict=True)
         result["train_result"] = {
@@ -165,6 +206,8 @@ def save_classification_run(
                 "brier_score": "n/a" if y_proba_train is None else brier_score_loss(y_true_train, y_proba_train)
             }
         }
+
+    # now some file io related stuff: filepath + save
     filename = f"{prefix}_{run_id:04d}.json"
     filepath = os.path.join(output_dir, filename)
 

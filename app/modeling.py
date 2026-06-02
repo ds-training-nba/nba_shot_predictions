@@ -22,8 +22,9 @@ from app.data_providers import ready_split_dataset
 def model_prediction(config: RunConfig):
 
     """
-    whole processing pipeline, yet to be made testable and configurable
-    :return: None
+    whole processing pipeline, including prediction on the test and train sets
+    (train included to be able to estimate overfitting)
+    :return: y_pred, y_test, y_pred_train, y_train
     """
     X_train, y_train, X_test, y_test, X_train_orig, X_test_orig = ready_split_dataset(config)
     model = build_model(config.model_config)
@@ -36,6 +37,12 @@ def model_prediction(config: RunConfig):
 
 
 def evaluate_predictions(y_test, y_pred):
+    """
+    Convenience function to bundle evaluation via confusion matrix and classification report
+    :param y_test:
+    :param y_pred:
+    :return: cm, cr
+    """
     cm = pd.crosstab(y_test, y_pred, rownames=['Real Class'], colnames=['Predicted Class'])
     cr = classification_report(y_test, y_pred)
     return cm, cr
@@ -60,6 +67,12 @@ def predict_probabilities(model, X):
 
 
 def build_model(model_config: ModelConfig):
+    """
+    Factory function to build the model object according to a configuration
+    Hard coded parameters are results of the RandomizedSearchCV experiments (except for the DeepLearning model)
+    :param model_config:
+    :return:
+    """
     model = None
     match model_config.model_id:
         case app.conf.run.MODEL_ID_RANDOM_FOREST:
@@ -118,6 +131,11 @@ def build_model(model_config: ModelConfig):
             cv=3
         )
 def build_param_grid(model_config: ModelConfig):
+    """
+    Input parameter grids for Grid/RandomizedSearchCV
+    :param model_config:
+    :return:
+    """
     match model_config.model_id:
         case app.conf.run.MODEL_ID_RANDOM_FOREST:
             return {
@@ -157,6 +175,12 @@ def build_param_grid(model_config: ModelConfig):
                 "class_weight": [None, "balanced"]
             }
 def run_grid_search(config: RunConfig, cv):
+    """
+    Actually runs a randomizedSearchCV bc of slow traiining and big hyperparameter space
+    :param config: The run config defining model and variables
+    :param cv: no of cross validation runs
+    :return: y_pred, y_test, {"best_params": search.best_params_, "best_score": search.best_score_ }
+    """
     model = build_model(config.model_config)
     param_grid = build_param_grid(config.model_config)
     search = RandomizedSearchCV(
@@ -174,6 +198,11 @@ def run_grid_search(config: RunConfig, cv):
     return y_pred, y_test, {"best_params": search.best_params_, "best_score": search.best_score_ }
 
 def run_feature_selection(config: RunConfig):
+    """
+    Similar to run_grid_search, we run a feature selection according to a run config
+    :param config:
+    :return:
+    """
     model = build_model(config.model_config)
     X_train, y_train, X_test, y_test, X_train_orig, X_test_orig = ready_split_dataset(config)
     rfecv = RFECV(
@@ -196,6 +225,11 @@ def run_feature_selection(config: RunConfig):
     return  ranking, y_pred, y_test
 
 class SimpleLookupClassifier:
+    """
+    Classifier class that implements training and predict()/predict_proba() interfaces of sklearn models.
+    The idea of its algorithm is to just take very few of the most important variables and get mean
+    predictions for every combination, which are stored in a LookUp-Table dataFrame for prediction
+    """
     def __init__(self, cols):
         self.cols = cols
         self.lookup_dict = {}
@@ -245,12 +279,22 @@ class SimpleLookupClassifier:
         return np.array(probs)
 
 class DeepLearningClassifier:
+    """
+    Classifier class that implements training and predict()/predict_proba() interfaces of sklearn models.
+    Wraps a keras neural network that it builds according to the data during the fit() function.
+    """
     def __init__(self, layer_config):
         self.layer_config = layer_config
         self.keras_model = None
         self.training_history = None
 
     def fit(self, X_train, y_train):
+        """
+        Build and train the wrapped neural network
+        :param X_train: explanatory variables
+        :param y_train: true values for training
+        :return: None
+        """
         from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
 
         early_stopping = EarlyStopping(
@@ -289,21 +333,39 @@ class DeepLearningClassifier:
 
         self.keras_model = model
     def compose_model(self,all_inputs, num_inputs, embeddings):
-
+        """
+        compose and instantiate the actual model
+        Following the idea that the network could profit from the combination of a deep MLP part and a wide linear part,
+        here the two parts are combined
+        :param all_inputs: all input layers to be fed into actual model
+        :param num_inputs: numerical inputs only. As input for the wide layers part of the network
+        :param embeddings: category embeddings as input for the deep layers part of the network
+        :return: tensorflow.keras.Model
+        """
         deep = self.build_deep_layers(embeddings)
-        wide =  self.build_wide_layers(num_inputs)
-        logits = tensorflow.keras.layers.Add()([wide, deep])
-        output = tensorflow.keras.layers.Activation("sigmoid")(logits)
+        wide =  self.build_wide_layers(num_inputs) # currently unused, because we try deep only
+        logits = tensorflow.keras.layers.Add()([wide, deep]) # currently unused, because we try deep only
+        output = tensorflow.keras.layers.Activation("sigmoid")(logits) # currently unused, because we try deep only
         return tensorflow.keras.Model(
             inputs=all_inputs,
             outputs=deep
         )
     def build_wide_layers(self, inputs):
+        """
+        Build wide layers part of the network
+        :param inputs:
+        :return: KerasTensor
+        """
         wide = tensorflow.keras.layers.Concatenate()(inputs)
 
         wide = tensorflow.keras.layers.Dense(1, use_bias=True)(wide)
         return wide
     def build_deep_layers(self, embeddings):
+        """
+        Build wide layers part of the network
+        :param embeddings:
+        :return: KerasTensor
+        """
         x = tensorflow.keras.layers.Concatenate()(
 
             embeddings
@@ -321,11 +383,20 @@ class DeepLearningClassifier:
 
 
     def separate_dataframes(self, X: pd.DataFrame):
-
+        """
+        Convenience function to separate numerical and categorical data
+        :param X:
+        :return:
+        """
         X_num = X.select_dtypes(include=['int', 'float'])
         X_cat = X.select_dtypes(include=['category'])
         return X_num, X_cat
     def build_inputs_and_embeddings(self, X_train: pd.DataFrame):
+        """
+        analyze the input structure and generate inputs, embeddings and restructured data accordingly.
+        :param X_train:
+        :return:
+        """
         data = {}
         X_num, X_cat = self.separate_dataframes(X_train)
         all_inputs = []
@@ -375,6 +446,11 @@ class DeepLearningClassifier:
         return all_inputs, num_inputs, embeddings, data
 
     def predict_proba(self, X):
+        """
+        Implement the sklearn predict_proba interface
+        :param X: input DataFrame
+        :return: numpy array with an array of probabilities for each class as a result for each prediction
+        """
         cat_inputs,num_inputs, embeddings, X_split = self.build_inputs_and_embeddings(X)
         prob_1 = self.keras_model.predict(X_split, verbose=0).reshape(-1)
         prob_0 = 1.0 - prob_1
@@ -382,6 +458,11 @@ class DeepLearningClassifier:
         return np.column_stack([prob_0, prob_1])
 
     def predict(self, X):
+        """
+        Implement the sklearn predict interface
+        :param X: input DataFrame
+        :return: numpy array of predicted classes
+        """
         probs = self.predict_proba(X)
         predictions = (probs[:,1] >= 0.5).astype(int)
         return predictions
