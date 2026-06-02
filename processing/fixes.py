@@ -1,7 +1,5 @@
 import random
 
-from pandas import DataFrame
-import numpy as np
 
 def fix_action_type_target_leak(df):
     """

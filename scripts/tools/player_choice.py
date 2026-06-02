@@ -3,7 +3,7 @@ import pprint
 from app.config import ESPN_TOP_25
 file = 'data/orig/shots.csv'
 df = pd.read_csv(file)
-
+# Find the longest active players among ESPN top 20
 last_entries = {}
 for player_name in ESPN_TOP_25:
     df_player = df[df['PLAYER_NAME']  == player_name]

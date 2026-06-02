@@ -1,13 +1,13 @@
 import pandas as pd
 import copy
 
-from app.conf.run import build_default_run_config, MODEL_ID_LOGISTIC_REGRESSION, \
-    MODEL_ID_LIGHT_GBM
+from app.conf.run import build_default_run_config, MODEL_ID_LIGHT_GBM
 from app.experiments import run_experiment, load_runs_to_dataframe, experiment_current_path
 
 
 experiment_id = "manual_feature_comparison"
 
+#comparing the results of the usage of different columns
 config1 = build_default_run_config()
 config1.model_config.model_id = MODEL_ID_LIGHT_GBM
 config1.context_name = "No suspicious column"

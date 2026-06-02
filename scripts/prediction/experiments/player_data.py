@@ -1,11 +1,10 @@
 import pandas as pd
 import copy
 
-from app.conf.run import build_default_run_config, MODEL_ID_RANDOM_FOREST,  MODEL_ID_LIGHT_GBM, \
-    build_best_run_config
+from app.conf.run import build_default_run_config, MODEL_ID_LIGHT_GBM,
 from app.experiments import run_experiment, load_runs_to_dataframe, experiment_current_path
 
-
+# comparing the use of different player related data
 experiment_id = "player_data"
 # default: no added column
 config1 = build_default_run_config()

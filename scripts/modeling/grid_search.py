@@ -1,9 +1,10 @@
-from app.conf.run import build_default_run_config, MODEL_ID_DECISION_TREE, MODEL_ID_LIGHT_GBM, \
-    MODEL_ID_LOGISTIC_REGRESSION
 import copy
 
+from app.conf.run import build_default_run_config, MODEL_ID_DECISION_TREE, MODEL_ID_LIGHT_GBM, \
+    MODEL_ID_LOGISTIC_REGRESSION
 from app.experiments import run_grid_search_experiment
 
+# RandomizedSearchCV experiment for different models in one go
 experiment_id = "model_comparison_grid_search"
 # default: RandomForest
 config1 = build_default_run_config()

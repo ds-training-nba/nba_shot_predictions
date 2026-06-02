@@ -49,10 +49,10 @@ def filter_false_negatives(df_combined):
 
 def filter_false_positives(df_combined):
     """
-        Convenience function to filter only the false positives of a given df
-        :param df_combined: DataFrame containing the result DataFrame made with combine_actual_and_prediction_dataframe
-        :return: filtered DataFrame
-        """
+    Convenience function to filter only the false positives of a given df
+    :param df_combined: DataFrame containing the result DataFrame made with combine_actual_and_prediction_dataframe
+    :return: filtered DataFrame
+    """
     positive_predictions_mask = df_combined['Predicted'] > 0.5
     negative_outcome_mask = df_combined['Actual'] == 0
     return df_combined[ positive_predictions_mask & negative_outcome_mask ]

@@ -1,5 +1,4 @@
 from math import atan2
-
 import numpy as np
 import pandas as pd
 
@@ -8,6 +7,11 @@ from processing.helpers import shot_accuracy_by_fields
 
 
 def add_is_home_column(df: pd.DataFrame):
+    """
+    adds a column "IS_HOME" to the df, which indicates if the shooting player is playing at home.
+    :param df:
+    :return:
+    """
     def is_home(row):
         player_team = row['PLAYER1_TEAM_ABBREVIATION']
         home_team = row['HTM']
@@ -17,6 +21,12 @@ def add_is_home_column(df: pd.DataFrame):
     return df
 
 def fill_team_scores_and_margin(df):
+    """
+    Adds several columns to the dataframe, to have every shot row with and current score, and to have a difference
+    of the score according to the perspective of the player.
+    :param df:
+    :return:
+    """
     df = df.sort_values(["GAME_ID_x", "GAME_EVENT_ID"])
 
     df["points"] = df["SHOT_TYPE"].map({
@@ -50,6 +60,12 @@ def fill_team_scores_and_margin(df):
 
 
 def fill_time_features(df):
+    """
+    Adding calculated time features. Readable shot clock, IsOvertime, IsClutchTime (intense time shortly before and when
+    no easy win can be expected for the own team)
+    :param df:
+    :return:
+    """
     def played_time_seconds(row):
         period = row['PERIOD_x']
         period_time = 12 * 60
@@ -90,6 +106,11 @@ def fill_time_features(df):
 
 
 def add_player_data(df: pd.DataFrame):
+    """
+    Adding personal player information that is generally available and might be handy to make deductions (e.g. high age)
+    :param df:
+    :return:
+    """
     df_players = pd.read_csv('data/orig/player_data.csv')
     df = df.merge(df_players, left_on="PLAYER_NAME", right_on="name")
 
@@ -103,6 +124,11 @@ def add_player_data(df: pd.DataFrame):
     df['player_age'] = df['GAME_DATE'].dt.year - df['birth_date'].apply(lambda val: val[-4:]).astype(float)
     return df
 def determine_best_age_per_player(df: pd.DataFrame):
+    """
+    Calculate some context: Player's age with the most precise shots
+    :param df:
+    :return: dict player_name: best_age
+    """
     df_accuracy_by_age = shot_accuracy_by_fields(df, ['PLAYER_NAME', 'player_age']).reset_index()
     best_age_per_player = {}
     for name in df_accuracy_by_age['PLAYER_NAME'].unique():
@@ -111,6 +137,15 @@ def determine_best_age_per_player(df: pd.DataFrame):
     return best_age_per_player
 
 def add_last_match_precisions_for_prediction(df_train: pd.DataFrame, df_prediction: pd.DataFrame):
+    """
+    Context about the last match of the player.
+    (The idea was that we could use the last game in the training set for the test set,
+    but that was based on the idea the games in the test set were after the training.
+    Using these results otherwise in the test set smell too much of target leak.)
+    :param df_train:
+    :param df_prediction:
+    :return:
+    """
     last_match_precisions_per_player = {}
     for name in df_train['PLAYER_NAME'].unique():
         df_sorted = df_train[df_train['PLAYER_NAME'] == name].sort_values(ascending=False, by="GAME_DATE")
@@ -119,6 +154,11 @@ def add_last_match_precisions_for_prediction(df_train: pd.DataFrame, df_predicti
     return df_prediction
 
 def add_last_match_precision(df: pd.DataFrame):
+    """
+    Adds the last match precision column: An indicator of the players current form
+    :param df:
+    :return:
+    """
     df_accuracy_per_player = shot_accuracy_by_fields(df, ['PLAYER_NAME'])
     df_accuracy_per_player_and_match = shot_accuracy_by_fields(df, ['PLAYER_NAME', 'GAME_ID_x'])
     precisions ={}
@@ -145,12 +185,25 @@ def add_last_match_precision(df: pd.DataFrame):
     return df
 
 def add_best_age_data(df: pd.DataFrame, best_ages):
+    """
+    Apply calculated best ages to dataFrame/Player Column
+    :param df:
+    :param best_ages:
+    :return:
+    """
     def best_age(name):
         return best_ages[name]
     df['best_age'] = df['PLAYER_NAME'].apply(best_age)
     return df
 
 def add_opponent_interfered_column(df: pd.DataFrame):
+    """
+    When there is a player two mentioned in the data and it is an opponent, we calculate that an opponent has interfered
+    with the shot. But this has a very strong POST labeling target leak. Every time the opponent is mentioned, the shot WAS MADE!
+    So we do not use this column
+    :param df:
+    :return:
+    """
     def opponent_interfered(row):
         return row['PLAYER1_TEAM_ABBREVIATION'] != row['PLAYER2_TEAM_ABBREVIATION'] and isinstance(row['PLAYER2_TEAM_ABBREVIATION'], str) and (len(row['PLAYER2_TEAM_ABBREVIATION']) > 0)
 
@@ -159,6 +212,11 @@ def add_opponent_interfered_column(df: pd.DataFrame):
 
 
 def add_angle_column(df: pd.DataFrame):
+    """
+    From locations calculate the angle
+    :param df:
+    :return:
+    """
     def angle(row):
         x = row['LOC_X']
         y = row['LOC_Y']
@@ -184,6 +242,13 @@ def add_angle_column(df: pd.DataFrame):
 
 
 def add_shot_main_action_type_column(df: pd.DataFrame):
+    """
+    Grouping the ACTION_TYPE into main groups. Seems to add information to the model and not add to overfitting
+    although the columns highly correlate.
+    Also, MAIN_ACTION_TYPE can be interpreted better.
+    :param df:
+    :return:
+    """
     def main_category(val):
         other_str = 'Other'
         if not isinstance(val, str):
@@ -196,22 +261,9 @@ def add_shot_main_action_type_column(df: pd.DataFrame):
     df['MAIN_ACTION_TYPE'] = df['ACTION_TYPE'].apply(main_category)
     return df
 
-def add_shifted_score_columns(df: pd.DataFrame):
-    df['SCORE_HOME_BT'] = 0
-    df['SCORE_AWAY_BT'] = 0
-    def shift_score(val):
-        other_str = 'Other'
-        if not isinstance(val, str):
-            return other_str
-        keywords = ['Dunk', 'Layup', 'Hook', 'Jump']
-        for keyword in keywords:
-            if keyword in val:
-                return keyword
-        return other_str
-    df['MAIN_ACTION_TYPE'] = df['ACTION_TYPE'].apply(main_category)
-    return df
 
 
+# definition of added columns before uploading clean split version to huggingface
 COMPUTED_FEATURES_FUNCTIONS = [
     add_is_home_column,
     fill_team_scores_and_margin,

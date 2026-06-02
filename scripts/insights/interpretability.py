@@ -1,4 +1,3 @@
-
 import matplotlib.pyplot as plt
 
 from app.conf.run import build_best_run_config, MODEL_ID_LOGISTIC_REGRESSION, MODEL_ID_DECISION_TREE, \
@@ -7,18 +6,23 @@ from app.data_providers import ready_split_dataset
 from app.modeling import build_model
 from plot.interpretability import feature_importance_bar_plot
 
+# plot various importance plots for each model
+
 config = build_best_run_config()
 config.model_config.model_id = MODEL_ID_LOGISTIC_REGRESSION
 model = build_model(config.model_config)
 
 
 X_train, y_train, X_test, y_test, X_train_orig, X_test_orig = ready_split_dataset(config)
+
+# linear regression importance plot
 model.fit(X_train,y_train)
 models = {
     MODEL_ID_LOGISTIC_REGRESSION: model
 }
 feature_importance_bar_plot(X_train.columns, model.coef_[0],"Logistic Regression Feature Importance", "coefficient")
 
+# same for tree models
 tree_models = [MODEL_ID_DECISION_TREE, MODEL_ID_LIGHT_GBM, MODEL_ID_RANDOM_FOREST]
 for model_id in tree_models:
     config.model_config.model_id = model_id
@@ -27,7 +31,7 @@ for model_id in tree_models:
     models[model_id] = model
     feature_importance_bar_plot(X_train.columns, model.feature_importances_, model_id + " Feature Importance")
 
-
+# with sklearn's permutation_importance
 from sklearn.inspection import permutation_importance
 for model_id in models:
     model = models[model_id]

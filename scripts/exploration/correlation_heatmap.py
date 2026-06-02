@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from app.data_providers import main_dataframe, filtered_shots_dataframe
+from app.data_providers import main_dataframe
 from app.config import EXPLANATORY_CANDIDATES_NUMERICAL, TARGET_VARIABLE
 
+# numerical variables correlation table
 colums = EXPLANATORY_CANDIDATES_NUMERICAL + [TARGET_VARIABLE]
 df_player_choice = main_dataframe()
 df_player_choice = df_player_choice[df_player_choice['SHOT_ZONE_RANGE'] == "24+ ft."]

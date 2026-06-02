@@ -3,6 +3,7 @@ import seaborn as sns
 
 from app.data_providers import filtered_shots_dataframe
 
+# 2d kde plot of shot (attempts) per player
 df_player_choice = filtered_shots_dataframe()
 g = sns.FacetGrid(df_player_choice, col='PLAYER_NAME', col_wrap=4, height=3)
 

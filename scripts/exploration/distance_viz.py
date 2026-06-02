@@ -4,15 +4,14 @@ import seaborn as sns
 
 # own code
 from app.config import TARGET_VARIABLE
-from app.data_providers import get_shots_dataframe, main_dataframe, filtered_shots_dataframe
+from app.data_providers import main_dataframe
 from processing.helpers import shot_accuracy_by_fields
-from processing.compute_columns import add_shot_main_action_type_column
 
-# main
+# raw data
 df = main_dataframe()
 
 df_accuracy = shot_accuracy_by_fields(df, ['SHOT_ZONE_RANGE', 'PLAYER_NAME']).reset_index()
-
+# shot accuracy distribution by player and Range
 g = sns.FacetGrid(df_accuracy, col="SHOT_ZONE_RANGE", col_wrap=4, height=3)
 
 # g.map_dataframe(
@@ -21,6 +20,7 @@ g = sns.FacetGrid(df_accuracy, col="SHOT_ZONE_RANGE", col_wrap=4, height=3)
 #     y=TARGET_VARIABLE
 # )
 
+#
 g.map_dataframe(
     sns.boxplot,
     y=TARGET_VARIABLE

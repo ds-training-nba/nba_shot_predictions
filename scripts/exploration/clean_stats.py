@@ -1,5 +1,6 @@
-from app.data_providers import clean_source_dataframe, provide_dataframe, DataFrameRequest
+from app.data_providers import provide_dataframe, DataFrameRequest
 
+# Analyze NAs
 request = DataFrameRequest(add_computed = False,
     filter_pre_encoding_columns = False,
     encode_for_model = False,

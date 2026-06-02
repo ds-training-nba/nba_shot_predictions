@@ -1,9 +1,10 @@
 from app.conf.run import build_default_run_config, MODEL_ID_LIGHT_GBM
 from app.data_providers import ready_split_dataset
-from app.modeling import model_prediction, build_model, predict_probabilities
-from evaluation.insights import get_false_predictions
+from app.modeling import  build_model, predict_probabilities
+
 from processing.helpers import combine_actual_and_prediction_dataframe, combine_result_and_x_orig_dataframe
-import pandas as pd
+
+# build simple pipeline to compare esults of according to Opponent interfered column
 config = build_default_run_config()
 config.return_probabilities = True
 config.model_config.model_id = MODEL_ID_LIGHT_GBM

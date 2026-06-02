@@ -1,9 +1,3 @@
-from sklearn.metrics import (
-    brier_score_loss,
-    roc_auc_score,
-    log_loss,
-)
-
 import numpy as np
 import pandas as pd
 
@@ -100,10 +94,10 @@ def brier_decomposition(
 
         weight = n_bin / n
 
-        # Reliability
+        # Reliability: How good is this bin? Add weighted loss contribution
         reliability += weight * (prob_mean - outcome_mean) ** 2
 
-        # Resolution
+        # Resolution: How meaningful is this bin?
         resolution += weight * (
             outcome_mean - overall_event_rate
         ) ** 2
@@ -115,6 +109,7 @@ def brier_decomposition(
             "actual_mean": outcome_mean,
         })
 
+    # independent from model behavior
     uncertainty = overall_event_rate * (1 - overall_event_rate)
 
     brier = reliability - resolution + uncertainty

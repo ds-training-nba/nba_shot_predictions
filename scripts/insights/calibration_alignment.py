@@ -1,11 +1,13 @@
-from sklearn.calibration import CalibrationDisplay, CalibratedClassifierCV
-import matplotlib.pyplot as plt
 import numpy as np
+
 from app.conf.run import build_default_run_config, MODEL_ID_LIGHT_GBM
 from app.data_providers import ready_split_dataset
 from app.modeling import build_model, predict_probabilities
 from processing.helpers import combine_actual_and_prediction_dataframe, combine_result_and_x_orig_dataframe
 
+# manually analyzing predicted probabilities and real probabilities in bin
+
+# training pipeline
 config = build_default_run_config()
 config.return_probabilities = True
 config.model_config.model_id = MODEL_ID_LIGHT_GBM
@@ -42,7 +44,7 @@ print(free_throw[['Predicted', 'Actual', 'PLAYER_ID', 'ACTION_TYPE', 'IS_HOME']]
 #     n_bins=20
 # )
 #
-#
+# Trying to improve via calibrated classifier
 # calibration_model = CalibratedClassifierCV(
 #     model,
 #     method="isotonic",

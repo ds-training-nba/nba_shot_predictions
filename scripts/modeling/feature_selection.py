@@ -5,6 +5,7 @@ from app.conf.run import build_default_run_config, MODEL_ID_LOGISTIC_REGRESSION
 
 from app.modeling import run_feature_selection
 
+# manual finding out about the actual use of each feature
 config = build_default_run_config()
 config.model_config.model_id = MODEL_ID_LOGISTIC_REGRESSION
 config.encoding_config.std_scale_cols.append('ABS_ANGLE')

@@ -6,6 +6,14 @@ from evaluation.shap import shap_explainer, shap_values
 
 
 def feature_importance_bar_plot(columns, importances, title, importance_col_name="importance"):
+    """
+    convenience function which plots an importance bar plot
+    :param columns:
+    :param importances:
+    :param title:
+    :param importance_col_name:
+    :return:
+    """
     importance_df = pd.DataFrame({
         "feature": columns,
         importance_col_name: importances
@@ -17,11 +25,21 @@ def feature_importance_bar_plot(columns, importances, title, importance_col_name
 
 
 def create_shap_plotter_from_model_and_data(model, X_test, X_train):
+    """
+    factory for a shap plotter
+    :param model:
+    :param X_test:
+    :param X_train:
+    :return:
+    """
     explainer = shap_explainer(model, X_train)
     values = shap_values(model, X_test, X_train)
     return ShapPlotter(explainer, values, X_test)
 
 class ShapPlotter:
+    """
+    Class to combine data needed for SHAP plots and their plotting functions
+    """
     def __init__(self, explainer: shap.Explainer, shap_values, X_test):
         self.explainer = explainer
         self.shap_values = shap_values

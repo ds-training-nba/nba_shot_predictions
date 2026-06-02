@@ -1,11 +1,10 @@
 import pandas as pd
 import copy
 
-from app.conf.run import build_default_run_config, MODEL_ID_LOGISTIC_REGRESSION, \
-    MODEL_ID_LIGHT_GBM
+from app.conf.run import build_default_run_config,MODEL_ID_LIGHT_GBM
 from app.experiments import run_experiment, load_runs_to_dataframe, experiment_current_path
 
-
+# checking out what potentialy flawed/suspicious columns provide as a gain in metrics
 experiment_id = "target_leakage"
 
 config1 = build_default_run_config()
@@ -20,11 +19,6 @@ config2.encoding_config.one_hot_cols.append('ACTION_TYPE')
 config3 = copy.deepcopy(config2)
 config3.context_name = "Action Type AND Opponent Interfered"
 config3.encoding_config.passthrough_cols.append('OPPONENT_INTERFERED')
-
-
-
-
-
 
 
 run_experiment([config1,config2, config3], experiment_id)

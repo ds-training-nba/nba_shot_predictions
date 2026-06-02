@@ -4,15 +4,16 @@ import seaborn as sns
 
 # own code
 from app.config import TARGET_VARIABLE
-from app.data_providers import get_shots_dataframe, main_dataframe, filtered_shots_dataframe
+from app.data_providers import main_dataframe
 from processing.helpers import shot_accuracy_by_fields
-from processing.compute_columns import add_shot_main_action_type_column
 
 # main
 df = main_dataframe()
 
+# get accuracy per Shot technique and player
 df_accuracy = shot_accuracy_by_fields(df, ['MAIN_ACTION_TYPE', 'PLAYER_NAME']).reset_index()
 
+############### Players and Main Action Type accuracy
 # g = sns.FacetGrid(df_accuracy, col="MAIN_ACTION_TYPE", col_wrap=4, height=3)
 #
 # g.map_dataframe(
@@ -29,22 +30,24 @@ df_accuracy = shot_accuracy_by_fields(df, ['MAIN_ACTION_TYPE', 'PLAYER_NAME']).r
 #     y=TARGET_VARIABLE
 # )
 
-# g = sns.FacetGrid(df, col='PLAYER_NAME', col_wrap=4, height=3)
+
+
+
+# Action Type to Main Action Type mapping
+# g = sns.FacetGrid(df, col='MAIN_ACTION_TYPE', col_wrap=2, height=3, sharey=False, sharex=False)
 #
 # g.map_dataframe(
-#     sns.histplot,
-#     x="MAIN_ACTION_TYPE",
-#     stat="probability"
+#     sns.countplot,
+#     x="ACTION_TYPE"
 # )
-#
-#
-#
-# plt.show()
-g = sns.FacetGrid(df, col='MAIN_ACTION_TYPE', col_wrap=2, height=3, sharey=False, sharex=False)
+
+############### Players and Main Action Type distribution
+g = sns.FacetGrid(df, col='PLAYER_NAME', col_wrap=4, height=3)
 
 g.map_dataframe(
-    sns.countplot,
-    x="ACTION_TYPE"
+    sns.histplot,
+    x="MAIN_ACTION_TYPE",
+    stat="probability"
 )
 g.set_xticklabels(rotation=90)
 plt.xticks(rotation=90, ha='right')

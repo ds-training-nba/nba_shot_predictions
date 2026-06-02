@@ -9,8 +9,8 @@ from app.experiments import run_experiment, load_runs_to_dataframe, experiment_c
 experiment_id = "best_vs_default"
 # default: no added column
 config1 = build_default_run_config()
-config1.model_config.model_id = MODEL_ID_LIGHT_GBM
 config1.context_name = "Default"
+
 config2 = build_best_run_config()
 config2.context_name = "Best"
 

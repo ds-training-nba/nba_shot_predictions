@@ -7,11 +7,11 @@ from app.experiments import run_experiment, load_runs_to_dataframe, experiment_c
 
 
 experiment_id = "calibration"
-
+# Automatically comparing the use of calibratedclassifiercv wrap to the bare model
 config1 = build_default_run_config()
 config1.context_name = "Raw Model"
 config1.model_config.model_id = MODEL_ID_LIGHT_GBM
-# Model = Logistic Regression
+
 config2 = copy.deepcopy(config1)
 config2.context_name = "Model Wrapped in CalibratedClassifierCV"
 config2.model_config.wrap_calibrated = True

@@ -6,7 +6,17 @@ from app.conf.run import EncodingConfig, can_handle_categories, MODEL_ID_SIMPLE_
 
 
 def encode_for_model(X_train, y_train, model_to_encode_for: str, encoding_config: EncodingConfig, X_test = None):
+    """
+    Run input data through encoding pipeline to filter and encode columns according to config and model type
+    :param X_train:
+    :param y_train:
+    :param model_to_encode_for: model_id str according to constants
+    :param encoding_config:
+    :param X_test:
+    :return: X_train, X_test
+    """
 
+    # Find actual encodings according to the model type
     if model_to_encode_for == MODEL_ID_SIMPLE_LOOKUP:
         return X_train, X_test
     one_hot_cols = []
@@ -29,7 +39,7 @@ def encode_for_model(X_train, y_train, model_to_encode_for: str, encoding_config
         passthrough_cols = []
 
 
-
+    # define the processing pipeline
     preprocessor = ColumnTransformer(
         transformers=[
             ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), one_hot_cols),
