@@ -104,7 +104,7 @@ def filtered_shots_dataframe(use_small = False):
     df = get_shots_dataframe(use_small)
     return filter_for_players(df)
 
-def test_train_dataset():
+def test_train_dataset(add_player_info=False):
     ds = load_dataset(
         "ds-training-nba/nba_shot_data",
         data_files={
@@ -112,17 +112,21 @@ def test_train_dataset():
             "test": "processed/processed_20_players_test.parquet"
         }
     )
-    # enrich with well known facts about the players from another database
-    train = add_player_data(ds['train'].to_pandas())
-    test = add_player_data(ds['test'].to_pandas())
-    # determine best age from train and add column to test and train
-    best_ages = determine_best_age_per_player(train)
-    train = add_best_age_data(train, best_ages)
-    test = add_best_age_data(test, best_ages)
-    # consecutively add the precision of the last match to the data of the next match.
-    train = add_last_match_precision(train)
-    # get precision data only from train
-    test = add_last_match_precisions_for_prediction(train, test)
+    if add_player_info:
+        # enrich with well known facts about the players from another database
+        train = add_player_data(ds['train'].to_pandas())
+        test = add_player_data(ds['test'].to_pandas())
+        # determine best age from train and add column to test and train
+        best_ages = determine_best_age_per_player(train)
+        train = add_best_age_data(train, best_ages)
+        test = add_best_age_data(test, best_ages)
+        # consecutively add the precision of the last match to the data of the next match.
+        train = add_last_match_precision(train)
+        # get precision data only from train
+        test = add_last_match_precisions_for_prediction(train, test)
+    else:
+        train = ds['train'].to_pandas()
+        test = ds['test'].to_pandas()
 
     return {
         "train": train,
