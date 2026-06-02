@@ -1,6 +1,8 @@
-from app.streamlit import sl_show_experiment_results, sl_show_false_predictions
 import sys
 
+from app.streamlit import sl_show_experiment_results, sl_show_false_predictions
+
+# streamlit app/page chosen via script parameters
 match(sys.argv[1]):
     case 'experiment_results':
         experiment_id = sys.argv[2]
