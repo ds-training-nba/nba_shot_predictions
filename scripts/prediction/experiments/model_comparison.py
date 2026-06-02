@@ -2,7 +2,7 @@ import pandas as pd
 import copy
 
 from app.conf.run import build_default_run_config, MODEL_ID_LOGISTIC_REGRESSION, \
-    MODEL_ID_LIGHT_GBM, build_best_run_config, MODEL_ID_RANDOM_FOREST, MODEL_ID_SIMPLE_LOOKUP
+    MODEL_ID_LIGHT_GBM, build_best_run_config, MODEL_ID_RANDOM_FOREST, MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_DECISION_TREE
 from app.experiments import run_experiment, load_runs_to_dataframe, experiment_current_path
 
 
@@ -21,9 +21,12 @@ config3.model_config.model_id = MODEL_ID_LIGHT_GBM
 config4 = build_best_run_config()
 config4.context_name = "Simple Lookup"
 config4.model_config.model_id = MODEL_ID_SIMPLE_LOOKUP
+config5 = build_best_run_config()
+config5.context_name = "Decision Tree"
+config5.model_config.model_id = MODEL_ID_DECISION_TREE
 
 
-run_experiment([config1,config2,config3,config4], experiment_id)
+run_experiment([config1,config2,config3,config4, config5], experiment_id)
 
 df = load_runs_to_dataframe(experiment_current_path(experiment_id))
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):

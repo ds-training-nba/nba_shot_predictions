@@ -1,3 +1,4 @@
+from shap.plots import embedding
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import RFECV
@@ -8,6 +9,10 @@ from lightgbm import LGBMClassifier
 import pandas as pd
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout
+import tensorflow.keras
+import tensorflow as tf
 
 import app.conf.run
 from app.conf.run import RunConfig, ModelConfig
@@ -90,6 +95,20 @@ def build_model(model_config: ModelConfig):
             )
         case app.conf.run.MODEL_ID_SIMPLE_LOOKUP:
             model = SimpleLookupClassifier(["MAIN_ACTION_TYPE", "PLAYER_NAME"])
+        case app.conf.run.MODEL_ID_DEEP_LEARNING:
+            model = DeepLearningClassifier(
+                [
+
+                    {
+                        "n_neurons": 60,
+                        "activation": "gelu",
+                    },
+                    {
+                        "n_neurons": 15,
+                        "activation": "gelu",
+                    },
+                ]
+            )
     if not model_config.wrap_calibrated:
         return model
     else:
@@ -190,21 +209,21 @@ class SimpleLookupClassifier:
         lookup_table = (
             train_lookup
             .groupby(
-                ["MAIN_ACTION_TYPE", "PLAYER_NAME"]
+                self.cols
             )["y"]
             .mean()
             .reset_index()
             .rename(columns={"y": "p_make"})
         )
         self.lookup_dict = {
-            (
-                row["MAIN_ACTION_TYPE"],
-                row["PLAYER_NAME"]
-            ): row["p_make"]
+            self.row_values_as_tuple(row): row["p_make"]
 
             for _, row in lookup_table.iterrows()
         }
-
+    def row_values_as_tuple(self, row):
+        return tuple(
+            row[col] for col in self.cols
+        )
     def predict(self, X):
 
         probs = self.predict_proba(X)
@@ -216,10 +235,7 @@ class SimpleLookupClassifier:
         probs = []
 
         for _, row in X.iterrows():
-            key = (
-                row["MAIN_ACTION_TYPE"],
-                row["PLAYER_NAME"]
-            )
+            key = self.row_values_as_tuple(row)
 
             # fallback to global mean if unseen
             p = self.lookup_dict.get(key, self.global_mean)
@@ -228,3 +244,144 @@ class SimpleLookupClassifier:
 
         return np.array(probs)
 
+class DeepLearningClassifier:
+    def __init__(self, layer_config):
+        self.layer_config = layer_config
+        self.keras_model = None
+        self.training_history = None
+
+    def fit(self, X_train, y_train):
+        from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
+
+        early_stopping = EarlyStopping(
+            patience=10,  # Wait for 5 epochs before applying
+            min_delta=0.0005,  # If the loss function doesn't change by 1% after 5 epochs, either up or down, we stop
+            verbose=1,  # Display the epoch at which training stops
+            mode='min',
+            monitor='val_loss')
+        cat_inputs, num_inputs, embeddings, X_train_split = self.build_inputs_and_embeddings(X_train)
+        model = self.compose_model(cat_inputs,num_inputs, embeddings)
+
+        epochs = 50
+        batch_size = 128
+        steps_per_epoch = len(X_train) // batch_size
+        total_steps = steps_per_epoch * epochs
+        lr_schedule = tensorflow.keras.optimizers.schedules.CosineDecay(
+            initial_learning_rate=1e-3,
+            decay_steps=total_steps,
+            alpha=1e-2
+        )
+
+        model.compile(
+                       # loss='binary_crossentropy',  # Loss function
+                        loss="mse", # we are dealing with noisy data. BCE punishes confident wrong predictions (90% for a missed dunk)
+                                    # too hard, although statistically, the prediction was plausible. In this context,
+                                    # "mse" results in brier_score_loss.
+                      optimizer=tensorflow.keras.optimizers.AdamW(learning_rate=lr_schedule,weight_decay=1e-6),  # Optimization algorithm
+                      metrics=['AUC', 'accuracy'])  # Evaluation metric
+
+        self.training_history = model.fit(X_train_split, y_train,  # Training data
+                                     epochs=epochs,  # Number of epochs
+                                     batch_size=batch_size,  # Batch size
+                                     validation_split=0.2,   # Proportion of the validation set
+                                     callbacks=[]
+                                          )
+
+        self.keras_model = model
+    def compose_model(self,all_inputs, num_inputs, embeddings):
+
+        deep = self.build_deep_layers(embeddings)
+        wide =  self.build_wide_layers(num_inputs)
+        logits = tensorflow.keras.layers.Add()([wide, deep])
+        output = tensorflow.keras.layers.Activation("sigmoid")(logits)
+        return tensorflow.keras.Model(
+            inputs=all_inputs,
+            outputs=deep
+        )
+    def build_wide_layers(self, inputs):
+        wide = tensorflow.keras.layers.Concatenate()(inputs)
+
+        wide = tensorflow.keras.layers.Dense(1, use_bias=True)(wide)
+        return wide
+    def build_deep_layers(self, embeddings):
+        x = tensorflow.keras.layers.Concatenate()(
+
+            embeddings
+        )
+        mlp_layers = []
+        for i, config in enumerate(self.layer_config):
+            mlp_layers.append(Dense(units=config['n_neurons'],
+                            activation=config['activation'],
+                            kernel_initializer='normal'))
+            mlp_layers.append(Dropout(0.2))
+
+        mlp_layers.append(Dense(units=1))
+        mlp = Sequential(mlp_layers)
+        return mlp(x)
+
+
+    def separate_dataframes(self, X: pd.DataFrame):
+
+        X_num = X.select_dtypes(include=['int', 'float'])
+        X_cat = X.select_dtypes(include=['category'])
+        return X_num, X_cat
+    def build_inputs_and_embeddings(self, X_train: pd.DataFrame):
+        data = {}
+        X_num, X_cat = self.separate_dataframes(X_train)
+        all_inputs = []
+        num_inputs = []
+        embeddings = []
+
+        def bin_feature(x, bins):
+            x = tf.clip_by_value(x, 0.0, 0.9999)
+
+            bucket_ids = tf.floor(x * bins)
+
+            return tf.cast(bucket_ids, tf.int32)
+
+        for col in X_cat.columns:
+            name = col + "_input"
+            cat_input = Input(
+                shape=(1,),
+                name=name
+            )
+            all_inputs.append(cat_input)
+            data[name] = pd.DataFrame(X_cat[col].cat.codes)
+            embedding = tensorflow.keras.layers.Embedding(
+                input_dim=X_cat[col].nunique(),
+                output_dim=int(np.floor(np.sqrt(X_cat[col].nunique())/2))
+            )(cat_input)
+            embedding = tensorflow.keras.layers.Flatten()(embedding)
+            embeddings.append(embedding)
+
+        for col in X_num.columns:
+            name = col + "_input"
+            num_input = Input(
+                shape=(1,),
+                name=name
+            )
+            all_inputs.append(num_input)
+            num_inputs.append(num_input)
+            data[name] = X_num[[col]]
+            num_bins = 20
+            layer =  tensorflow.keras.layers.Lambda(lambda x: bin_feature(x, num_bins))(num_input)
+            embedding = tensorflow.keras.layers.Embedding(
+                input_dim=num_bins + 2,
+                output_dim=4
+            )(layer)
+            embedding = tensorflow.keras.layers.Flatten()(embedding)
+            embeddings.append(embedding)
+
+        return all_inputs, num_inputs, embeddings, data
+
+    def predict_proba(self, X):
+        cat_inputs,num_inputs, embeddings, X_split = self.build_inputs_and_embeddings(X)
+        prob_1 = self.keras_model.predict(X_split, verbose=0).reshape(-1)
+        prob_0 = 1.0 - prob_1
+
+        return np.column_stack([prob_0, prob_1])
+
+    def predict(self, X):
+        probs = self.predict_proba(X)
+        predictions = (probs[:,1] >= 0.5).astype(int)
+        return predictions

@@ -10,3 +10,4 @@ statsmodels
 streamlit
 lightgbm
 shap
+tensorflow

@@ -46,7 +46,7 @@ def build_default_run_config():
             std_scale_cols=[],
             # model type should decide,
             # whether this is a passed through cat or a OneHot (see encode_for_model function)
-            str_cat_cols=["MAIN_ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE", 'ANGLE_SECTOR']
+            str_cat_cols=["MAIN_ACTION_TYPE", "PLAYER_NAME", "SHOT_TYPE", 'ANGLE_SECTOR']
         )
     )
 
@@ -65,12 +65,13 @@ def build_best_run_config():
                 "year",
                 "player_age",
                 "best_age",
+                "ABS_ANGLE"
             ],
             target_enc_cols=[],
             std_scale_cols=[],
             # model type should decide,
             # whether this is a passed through cat or a OneHot (see encode_for_model function)
-            str_cat_cols=["ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE", 'ANGLE_SECTOR', "MAIN_ACTION_TYPE"]
+            str_cat_cols=["ACTION_TYPE", "PLAYER_NAME", "SHOT_TYPE", 'ANGLE_SECTOR', "MAIN_ACTION_TYPE"]
         ),
         use_action_type_fix=True
     )
@@ -86,13 +87,18 @@ def build_interpretability_run_config():
                 "is_playoffs",
                 "TimeRemainingInGame",
                 "IsClutchTime",
-                "ABS_ANGLE"
+                "ABS_ANGLE",
+                "TimeRemainingInPeriod",
+                "year",
+                "player_age",
+                "best_age"
+
             ],
             target_enc_cols=[],
             std_scale_cols=[],
             # model type should decide,
             # whether this is a passed through cat or a OneHot (see encode_for_model function)
-            str_cat_cols=["MAIN_ACTION_TYPE", "PLAYER_ID", "SHOT_TYPE"]
+            str_cat_cols=["MAIN_ACTION_TYPE", "PLAYER_NAME"]
         ),
         use_only_field_goals=True
     )
@@ -104,6 +110,7 @@ MODEL_ID_LOGISTIC_REGRESSION = "LogisticRegression"
 MODEL_ID_LIGHT_GBM = "LightGBM"
 MODEL_ID_DECISION_TREE = "DecisionTree"
 MODEL_ID_SIMPLE_LOOKUP = "SimpleLookup"
+MODEL_ID_DEEP_LEARNING = "DeepLearning"
 
 
 def get_active_columns(config: EncodingConfig):
@@ -119,5 +126,6 @@ def is_tree_based(model_id: str) -> bool:
 def can_handle_categories(model_id: str) -> bool:
     return model_id in {
         MODEL_ID_LIGHT_GBM,
+        MODEL_ID_DEEP_LEARNING
     }
 

@@ -1,7 +1,8 @@
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, TargetEncoder, StandardScaler
-
-from app.conf.run import EncodingConfig, can_handle_categories, MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LOGISTIC_REGRESSION
+from sklearn.preprocessing import OneHotEncoder, TargetEncoder, StandardScaler, MinMaxScaler
+import copy
+from app.conf.run import EncodingConfig, can_handle_categories, MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LOGISTIC_REGRESSION, \
+    MODEL_ID_DEEP_LEARNING
 
 
 def encode_for_model(X_train, y_train, model_to_encode_for: str, encoding_config: EncodingConfig, X_test = None):
@@ -9,23 +10,32 @@ def encode_for_model(X_train, y_train, model_to_encode_for: str, encoding_config
     if model_to_encode_for == MODEL_ID_SIMPLE_LOOKUP:
         return X_train, X_test
     one_hot_cols = []
-    passthrough_cols = encoding_config.passthrough_cols
-    std_scale_cols = encoding_config.std_scale_cols
+    min_max_cols = []
+    passthrough_cols = []
+    if model_to_encode_for == MODEL_ID_DEEP_LEARNING:
+        min_max_cols = copy.deepcopy(encoding_config.passthrough_cols)
+    else:
+        passthrough_cols = copy.deepcopy(encoding_config.passthrough_cols)
+
+    std_scale_cols = copy.deepcopy(encoding_config.std_scale_cols)
     # decide what to do with str_cat_cols according to model capacities
     if can_handle_categories(model_to_encode_for):
         passthrough_cols += encoding_config.str_cat_cols
     else:
-        one_hot_cols = encoding_config.str_cat_cols
+        one_hot_cols = copy.deepcopy(encoding_config.str_cat_cols)
 
     if model_to_encode_for == MODEL_ID_LOGISTIC_REGRESSION:
         std_scale_cols += encoding_config.passthrough_cols
         passthrough_cols = []
+
+
 
     preprocessor = ColumnTransformer(
         transformers=[
             ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), one_hot_cols),
             ("target", TargetEncoder(), encoding_config.target_enc_cols),
             ("std_scale", StandardScaler(), encoding_config.std_scale_cols),
+            ("min_max", MinMaxScaler(), min_max_cols),
             ("pass", "passthrough", passthrough_cols)
         ],
         remainder="drop"  # drops all other columns, so that w have a clean definition of wanted cols from encoding config
