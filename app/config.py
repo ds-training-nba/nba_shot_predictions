@@ -1,6 +1,9 @@
+# App definitions
+
 RESULTS_PATH = 'doc/results'
 EXPERIMENTS_PATH = RESULTS_PATH + '/experiments'
 
+# Candidates to choose from
 ESPN_TOP_25 = [
     'LeBron James',
     'Kobe Bryant',
@@ -29,6 +32,8 @@ ESPN_TOP_25 = [
     "Luka Doncic"
 ]
 
+# our actual choice from our selection algorithm
+# (Take list of 25 and sort by last match, so we get the most current 20 of the list)
 PLAYER_CHOICE = [
     'LeBron James',
     'Kobe Bryant',
@@ -57,8 +62,10 @@ PLAYER_CHOICE = [
     "Luka Doncic"
 ]
 
+# For convenience and consitency
 TARGET_VARIABLE = "SHOT_MADE_FLAG"
 
+# For some first experiments
 EXPLANATORY_CANDIDATES_NUMERICAL = [
     "SHOT_DISTANCE",
     "PERIOD_x",
@@ -111,7 +118,7 @@ CLEAN_SOURCE_COLUMNS = [
     TARGET_VARIABLE,
 ]
 
-
+# legacy, now dynamically configured in EncodingConfig
 EXPLANATORY_VARIABLES_PRE_ENCODING = [
     "PLAYER_ID",
     "MAIN_ACTION_TYPE",

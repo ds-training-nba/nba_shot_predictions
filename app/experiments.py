@@ -1,23 +1,37 @@
+#3rd party
 import os
 import json
 import pandas as pd
+from pathlib import Path
 
+# import own code
 from app.modeling import run_grid_search
 from app.conf.run import RunConfig
 from app.config import EXPERIMENTS_PATH
-from pathlib import Path
 from app.modeling import model_prediction
 from app.output import save_classification_run, create_new_output_version_dir, current_path_version_for_dirs, \
     numeric_dirs_in_path
 
 
 def experiment_base_path(experiment_id, auto_create=True):
+    """
+    Get the base path for the result logs of an experiment with the given identifier
+    :param experiment_id:
+    :param auto_create: whether or not to create a non-existing directory
+    :return: Path
+    """
     path = Path('./' + EXPERIMENTS_PATH + "/" + experiment_id)
     if (not path.exists()) and auto_create:
         path.mkdir(parents=True)
     return path
 
 def experiment_current_path(experiment_id):
+    """
+    Get the actual sub-path for the result logs of an experiment with the given identifier
+    /experiment_base_path/current_run_id_directory
+    :param experiment_id:
+    :return: Path
+    """
     base = experiment_base_path(experiment_id)
     current = current_path_version_for_dirs(
         numeric_dirs_in_path(base)
@@ -25,6 +39,13 @@ def experiment_current_path(experiment_id):
     return base / str(current)
 
 def run_experiment_part(config: RunConfig, path):
+    """
+    Runs the part of an experiment that consists of a single config:
+    Use the whole pipeline until the model prediction, then save the result log in the according path
+    :param config:
+    :param path:
+    :return: None
+    """
     config.return_probabilities = True
     y_proba, y_test, y_proba_train, y_train = model_prediction(config)
 
@@ -32,11 +53,27 @@ def run_experiment_part(config: RunConfig, path):
                             y_proba=y_proba, y_proba_train=y_proba_train, y_true_train=y_train,y_pred_train=y_proba_train[:,1] > config.decision_boundary)
 
 def run_grid_search_experiment_part(config: RunConfig, path):
+    """
+    Same as experiment, but with a grid search instead of a simple training, logging also the gridsearch results
+    :param config:
+    :param path:
+    :return:
+    """
     y_pred, y_test, grid_search_results = run_grid_search(config, 3)
     save_classification_run(y_test, y_pred, config, path,"grid_search", {"grid_search_results": grid_search_results})
 
 
 def run_experiment(configs: list[RunConfig], experiment_id:str):
+    """
+    Run the whole experiment (a list of configs, and an identifier to group
+     the results and find them under the same path)
+     With the use of experiments, we can compare different configs (models/encodings/choice of explanatory variables)
+     directly and conveniently. Only the difference in parameters needs to be defined and the whole pipeline and logging
+     is done automatically.
+    :param configs:
+    :param experiment_id:
+    :return:
+    """
     exp_path = experiment_base_path(experiment_id)
     run_path = create_new_output_version_dir(exp_path)
     for config in configs:
@@ -44,12 +81,23 @@ def run_experiment(configs: list[RunConfig], experiment_id:str):
 
 
 def run_grid_search_experiment(configs: list[RunConfig], experiment_id:str):
+    """
+    same as run_experiment, but with a grid search involved in the training process
+    :param configs: list of configs to compare
+    :param experiment_id: str to define the experiments name
+    :return: None
+    """
     exp_path = experiment_base_path(experiment_id)
     run_path = create_new_output_version_dir(exp_path)
     for config in configs:
         run_grid_search_experiment_part(config,run_path)
 
 def load_runs_to_dataframe(directory="runs"):
+    """
+    Load/Parse experiment result logs into a dataframe. I.e. to display in a streamlit app
+    :param directory: str the actual log directory of the experiment
+    :return: pd.DataFrame
+    """
     records = []
 
     for filename in os.listdir(directory):

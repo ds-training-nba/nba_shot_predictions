@@ -1,8 +1,9 @@
+# imports of 3rd party packages
 import dataclasses
-
 from datasets import load_dataset
 import pandas as pd
 
+# imports of own packages
 from app.conf.run import RunConfig
 from app.config import TARGET_VARIABLE
 from processing.compute_columns import add_computed_feature_columns, add_is_home_column, add_opponent_interfered_column, \
@@ -17,7 +18,7 @@ from processing.preprocessing import preprocess_fields
 
 def get_shots_dataframe(use_small = False):
     """
-    Returns the raw dataframe (default: from huggingface, use_small: local small csv)
+    Returns the RAW dataframe (default: from huggingface, use_small: local small csv)
     :param use_small:  use the small version for better performance when testing complicated calculations
     :return: pd.DataFrame
     """
@@ -34,6 +35,8 @@ def get_shots_dataframe(use_small = False):
 def main_dataframe(use_small = False):
     """
         Returns the main dataframe to work with. Containing added columns and so on.
+        Still quite raw and not directly used for training. (There is "caching" step in between. Training data is
+        fetched from another hugging face data source)
         :param use_small: use the small version for better performance when testing complicated calculations
         :return: pd.DataFrame
     """
@@ -47,6 +50,7 @@ def main_dataframe(use_small = False):
 def clean_source_dataframe(use_small = False):
     """
         Returns only the source columns to use. The goal is that this dataframe does not contain any missing values.
+        Not used for training: A more refined and test-train-split datasource is available on our hugging face repo)
         :param use_small: use the small version for better performance when testing complicated calculations
         :return: pd.DataFrame
     """
@@ -67,7 +71,8 @@ class DataFrameRequest:
 
 def provide_dataframe(request: DataFrameRequest):
     """
-        Returns all the data for the model
+        Returns all the data for the model.
+        Also operates on the RAW datasource. only used to generate the test-train upload to huggingface
         :param request: define data source size and what processing is to be done
         :return: pd.DataFrame
     """
@@ -105,6 +110,11 @@ def filtered_shots_dataframe(use_small = False):
     return filter_for_players(df)
 
 def test_train_dataset(add_player_info=False):
+    """
+    Returns the actual filtered, cleaned and split version from huggingface.
+    :param add_player_info:
+    :return:
+    """
     ds = load_dataset(
         "ds-training-nba/nba_shot_data",
         data_files={
@@ -133,10 +143,19 @@ def test_train_dataset(add_player_info=False):
         "test": test,
     }
 def full_dataset():
+    """
+    Convenience function to get merged test/train DF
+    :return:
+    """
     ds = test_train_dataset()
     return pd.concat([ds['train'],ds['test']], axis=0)
 
 def ready_split_dataset(config: RunConfig):
+    """
+    Returns the processed (encoded) and split dataframes according to the RunConfig
+    :param config:
+    :return: X_train_enc, y_train, X_test_enc, y_test, X_train, X_test
+    """
     dataset = test_train_dataset()
     df_train = dataset['train']
     df_test = dataset['test']
@@ -154,6 +173,11 @@ def ready_split_dataset(config: RunConfig):
 
 
 def split_x_y(df):
+    """
+    Covenience function to avoid duplicate code
+    :param df: pd.DataFrame
+    :return: pd.DataFrame
+    """
     X = df.drop(columns=[TARGET_VARIABLE])
     y = df[TARGET_VARIABLE]
     return X,y
