@@ -147,7 +147,7 @@ def full_dataset():
     Convenience function to get merged test/train DF
     :return:
     """
-    ds = test_train_dataset()
+    ds = test_train_dataset(True)
     return pd.concat([ds['train'],ds['test']], axis=0)
 
 def ready_split_dataset(config: RunConfig):
@@ -156,7 +156,7 @@ def ready_split_dataset(config: RunConfig):
     :param config:
     :return: X_train_enc, y_train, X_test_enc, y_test, X_train, X_test
     """
-    dataset = test_train_dataset()
+    dataset = test_train_dataset(True)
     df_train = dataset['train']
     df_test = dataset['test']
 

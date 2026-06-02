@@ -2,6 +2,7 @@
 
 RESULTS_PATH = 'doc/results'
 EXPERIMENTS_PATH = RESULTS_PATH + '/experiments'
+MODELS_PATH = 'models'
 
 # Candidates to choose from
 ESPN_TOP_25 = [

@@ -1,4 +1,3 @@
-from shap.plots import embedding
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import RFECV
@@ -15,8 +14,9 @@ import tensorflow.keras
 import tensorflow as tf
 
 import app.conf.run
-from app.conf.run import RunConfig, ModelConfig
+from app.conf.run import RunConfig, ModelConfig, build_best_run_config
 from app.data_providers import ready_split_dataset
+from app.model_persistence import model_path, persist_model, load_model
 
 
 def model_prediction(config: RunConfig):
@@ -49,7 +49,7 @@ def evaluate_predictions(y_test, y_pred):
 
 def predict(model, X):
     """
-    Abstraction for models that do not always have sklearn interface
+    Abstraction for models that do not always have sklearn interface (in the future)
     :param model:
     :param X:
     :return:
@@ -58,7 +58,7 @@ def predict(model, X):
 
 def predict_probabilities(model, X):
     """
-    Abstraction for models that do not always have sklearn interface
+    Abstraction for models that do not always have sklearn interface (in the future)
     :param model:
     :param X:
     :return:
@@ -130,6 +130,34 @@ def build_model(model_config: ModelConfig):
             method="isotonic",
             cv=3
         )
+
+def build_fitted_model(config: RunConfig):
+    X_train, y_train, X_test, y_test, X_train_orig, X_test_orig = ready_split_dataset(config)
+    model = build_model(config.model_config)
+    model.fit(X_train, y_train)
+    return model
+
+def build_persisted_model(model_id: str):
+    """
+    Build a model and persist it. To not mix up build time and runtime configurations,
+    the only parameter is model id. The config is fixed for it.
+    :param model_id:
+    :return:
+    """
+    config = build_best_run_config()
+    config.model_config.model_id = model_id
+    model = build_fitted_model(config)
+    persist_model(model, model_path(config.model_config.model_id))
+    return model
+
+def load_persisted_model(model_id: str):
+    """
+    Convenience function to retrieve a persisted model
+    :param model_id:
+    :return:
+    """
+    return load_model(model_path(model_id))
+
 def build_param_grid(model_config: ModelConfig):
     """
     Input parameter grids for Grid/RandomizedSearchCV
