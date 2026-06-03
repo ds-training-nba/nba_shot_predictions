@@ -20,11 +20,11 @@ config3 = copy.deepcopy(config1)
 config3.context_name = "Light GBM"
 config3.model_config.model_id = MODEL_ID_LIGHT_GBM
 
-config4 = build_best_run_config()
+config4 = copy.deepcopy(config1)
 config4.context_name = "Simple Lookup"
 config4.model_config.model_id = MODEL_ID_SIMPLE_LOOKUP
 
-config5 = build_best_run_config()
+config5 = copy.deepcopy(config1)
 config5.context_name = "Decision Tree"
 config5.model_config.model_id = MODEL_ID_DECISION_TREE
 
