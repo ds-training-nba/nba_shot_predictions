@@ -6,9 +6,13 @@ Collaborative Cap-Stone Project of our DataScientist training
 checkout from github
 in project dir, setup venv and activate. 
 Then:
+
 `pip install -r requirements.txt`
+
 to install the required packages and
+
 `pip install -e .`
+
 to install the src package as package in the venv.
 ### CSV Data
 We stopped working with csv data directly and now host our raw data on Huggingface in 
