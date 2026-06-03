@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import json
 from datetime import datetime
-from sklearn.metrics import classification_report, confusion_matrix, brier_score_loss
+from sklearn.metrics import classification_report, confusion_matrix, brier_score_loss, roc_auc_score
 
 from app.conf.run import RunConfig
 from evaluation.custom_scores import expected_calibration_error, brier_decomposition
@@ -168,6 +168,7 @@ def save_classification_run(
         "result": {
             "metrics": {
                 "accuracy": report.get("accuracy"),
+                "roc_auc": "n/a" if y_proba is None else roc_auc_score(y_true, y_proba[:,1]),
                 "macro_avg": report.get("macro avg"),
                 "weighted_avg": report.get("weighted avg"),
                 "brier_score": "n/a" if y_proba is None else brier_score_loss(y_true, y_proba),
