@@ -122,32 +122,47 @@ def test_train_dataset(add_player_info=False):
             "test": "processed/processed_20_players_test.parquet"
         }
     )
+    train = ds['train'].to_pandas()
+    test = ds['test'].to_pandas()
     if add_player_info:
-        # enrich with well known facts about the players from another database
-        train = add_player_data(ds['train'].to_pandas())
-        test = add_player_data(ds['test'].to_pandas())
-        # determine best age from train and add column to test and train
-        best_ages = determine_best_age_per_player(train)
-        train = add_best_age_data(train, best_ages)
-        test = add_best_age_data(test, best_ages)
-        # consecutively add the precision of the last match to the data of the next match.
-        train = add_last_match_precision(train)
-        # get precision data only from train
-        test = add_last_match_precisions_for_prediction(train, test)
-    else:
-        train = ds['train'].to_pandas()
-        test = ds['test'].to_pandas()
+        train, test = enrich_with_player_info(train,test)
+
 
     return {
         "train": train,
         "test": test,
     }
-def full_dataset():
+
+def enrich_with_player_info(train, test):
+    """
+    Add player info
+    :param train:
+    :param test:
+    :return:  train, test
+    """
+
+    # enrich with well known facts about the players from another database
+    train = add_player_data(train)
+    test = add_player_data(test)
+    # determine best age from train and add column to test and train
+    best_ages = determine_best_age_per_player(train)
+    train = add_best_age_data(train, best_ages)
+    test = add_best_age_data(test, best_ages)
+
+    # last match precision is unused and might make problems when running in alternative prediction apps.
+    # consecutively add the precision of the last match to the data of the next match.
+    # train = add_last_match_precision(train)
+    # get precision data only from train
+    # test = add_last_match_precisions_for_prediction(train, test)
+    return train, test
+
+def full_dataset(add_player_info=False):
     """
     Convenience function to get merged test/train DF
+    :param add_player_info: whether to add player related columns
     :return:
     """
-    ds = test_train_dataset()
+    ds = test_train_dataset(add_player_info)
     return pd.concat([ds['train'],ds['test']], axis=0)
 
 def ready_split_dataset(config: RunConfig):
@@ -160,12 +175,38 @@ def ready_split_dataset(config: RunConfig):
     df_train = dataset['train']
     df_test = dataset['test']
 
+    return process_split_dataset(df_train,df_test,config)
+
+def prepare_dataset_for_prediction(df, config: RunConfig, df_train = None):
+    """
+    Returns the processed (encoded and filtered/fixed) version of input dataframe
+    :param
+    df: source df
+    config:
+    df_train: training context
+    :return: X_train_enc, y_train, X_test_enc, y_test, X_train, X_test
+    """
+    if df_train is None:
+        dataset = test_train_dataset(True)
+        df_train = dataset['train']
+    X_train_enc, y_train, X_test_enc, y_test, X_train, X_test = process_split_dataset(df_train,df,config)
+    return X_test_enc
+
+def process_split_dataset(df_train,df_test,config):
+    """
+    (pre)processing pipeline for a given split test/train dataset
+    :param df_train:
+    :param df_test:
+    :param config:
+    :return:
+    """
     if config.use_only_field_goals:
         df_train = df_train[df_train['points'] != 1]
         df_test = df_test[df_test['points'] != 1]
     if config.use_action_type_fix:
         df_train = fix_action_type_target_leak(df_train)
-        df_test = fix_action_type_target_leak(df_test)
+        # us df_train as source for options in case df_test is very small
+        df_test = fix_action_type_target_leak(df_test, df_train)
     X_test, y_test = split_x_y(df_test)
     X_train, y_train = split_x_y(df_train)
     X_train_enc, X_test_enc = encode_for_model(X_train, y_train, config.model_config.model_id, config.encoding_config, X_test)
