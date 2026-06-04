@@ -49,57 +49,54 @@ def render():
 
         st.markdown("""
         ### Project Background
-        
+
         American sports are highly driven by data analytics, and the NBA provides one of the richest
         sports datasets in the world.
-        
+
         This project is based on a curated selection of 20 elite NBA players from the modern era
         (2000s–present), representing superstars, franchise leaders, and championship-level contributors.
-        
-        The selection is NOT strictly limited to ESPN rankings, but is instead a balanced analytical
-        dataset designed to capture different player archetypes and roles across the modern NBA.
 
-        ### Extended Player Selection
+        The selection follows ESPN's "Top NBA Players of the 21st Century" ranking as a foundation,
+        extended with key championship contributors who defined the winning teams of this era —
+        players like Tony Parker, Manu Ginobili, and Pau Gasol, whose impact goes beyond
+        individual statistics.
 
-        To broaden the scope of the analysis, several all-time legends were added
-        to the player pool by our own initiative. These include players such as:
+        ### Player Selection Rationale
 
-        - Michael Jordan
-        - Kareem Abdul-Jabbar
-        - Magic Johnson
-        - Larry Bird
-        - Charles Barkley
+        The 20 players were chosen to capture three distinct archetypes:
 
-        While these players are not part of ESPN's "Top NBA Players of the
-        21st Century" ranking, they represent historical benchmarks whose
-        performance remains highly relevant when evaluating modern stars.
+        - **Franchise superstars** — players who carried teams and defined eras (LeBron, Kobe, Durant)
+        - **Championship contributors** — elite role players and co-stars on title-winning rosters
+          (Parker, Ginobili, Gasol, Garnett)
+        - **Modern playmakers** — next-generation stars reshaping how the game is played
+          (Curry, Jokic, Doncic, Giannis)
 
         ### Project Objectives
 
         1. Compare shooting frequency across different court locations.
         2. Compare shooting efficiency under various game situations.
-        3. Analyze differences between modern stars and historical legends.
-        4. Estimate shot success probability for active players using machine learning.
-        5. Identify the most influential factors affecting shot outcomes.
-        6. Evaluate whether modern players exhibit different shot-selection patterns
-           compared to previous generations.
+        3. Estimate shot success probability using machine learning.
+        4. Identify the most influential factors affecting shot outcomes.
+        5. Evaluate shot-selection patterns across different player archetypes.
+        6. Provide data-driven insights for coaching and player development.
 
         ### Why This Matters
 
         - **Player Evaluation**: distinguish efficiency from volume scoring.
         - **Game Strategy**: optimize shot selection schemes.
-        - **Player Development**: identify strengths and weaknesses.
-        - **Basketball Analytics**: compare players across different eras.
-        - **Coaching Decisions**: support data-driven decision making.
+        - **Player Development**: identify individual strengths and weaknesses.
+        - **Basketball Analytics**: compare players across different roles and systems.
+        - **Coaching Decisions**: support data-driven in-game decision making.
         """)
 
     with col2:
 
         st.markdown("""
         ### Player Groups
-        
+
         #### Modern NBA Superstars (21st Century Core)
         - LeBron James
+        - Kobe Bryant
         - Stephen Curry
         - Kevin Durant
         - Giannis Antetokounmpo
@@ -111,21 +108,20 @@ def render():
         - Russell Westbrook
         - Chris Paul
         - Dwyane Wade
-        
-        #### NBA Championship Core Players
-        - Kobe Bryant
+
+        #### Championship Core Players
         - Tim Duncan
         - Dirk Nowitzki
         - Kevin Garnett
         - Pau Gasol
         - Manu Ginobili
         - Tony Parker
-        
-        #### Modern Role & Two-Way Stars
+
+        #### Two-Way & Versatile Stars
         - Draymond Green
-        
+
         #### Research Focus
-        This selection includes both:
+        This selection covers:
         - franchise-level superstars
         - elite championship contributors
         - modern playmakers and system-defining players
@@ -141,9 +137,9 @@ def render():
         Predict the probability that a shot results in a made basket based on
         player characteristics, shot location, and game context.
 
-        The focus is placed on active players for predictive modeling, while
-        historical legends are included for comparative statistical analysis
-        across eras.
+        All 20 players are included both for comparative statistical analysis
+        and for predictive modeling — covering active players, recently retired
+        stars, and era-defining contributors of the 21st century NBA.
         """
     )
 

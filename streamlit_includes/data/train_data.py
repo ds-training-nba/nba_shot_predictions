@@ -19,14 +19,13 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 def train_models(df):
 
     target = "SHOT_MADE_FLAG"
-    numerical_fatures = ['SHOT_DISTANCE', 'LOC_X', 'LOC_Y', 'ANGLE_SIN', 'ANGLE_COS', 'ANGLE', 'ANGLE_SECTOR',
-                         'ABS_ANGLE', 'TimeRemainingInPeriod', 'TimeRemainingInGame', 'scoreMarginBeforeShot',
-                         'scoreHomeBeforeShot', 'scoreAwayBeforeShot', 'PERIOD_x', 'OvertimeNumber', 'TEAM_ID',
-                         'PLAYER_ID', 'TotalPlayedTime']
+    numerical_features = ['SHOT_DISTANCE', 'LOC_X', 'LOC_Y', 'ANGLE_SIN', 'ANGLE_COS', 'ANGLE', 'ANGLE_SECTOR',
+                         'ABS_ANGLE', 'TimeRemainingInPeriod', 'scoreMarginBeforeShot', 'scoreHomeBeforeShot',
+                          'PERIOD_x', 'OvertimeNumber', 'TEAM_ID', 'PLAYER_ID']
     categorical_features = ['SHOT_TYPE', 'SHOT_ZONE_RANGE', 'SHOT_ZONE_BASIC', 'SHOT_ZONE_AREA', 'ACTION_TYPE',
                             'MAIN_ACTION_TYPE', 'PLAYER_NAME']
     boolean_features = ['is_playoffs', 'IS_HOME', 'IsOvertime', 'IsClutchTime', 'OPPONENT_INTERFERED']
-    all_features = numerical_fatures + categorical_features + boolean_features
+    all_features = numerical_features + categorical_features + boolean_features
 
     df_model = df[all_features + [target]].dropna().sample(50000, random_state=42)
 

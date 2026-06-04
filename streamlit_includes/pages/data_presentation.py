@@ -10,9 +10,9 @@ from streamlit_includes.data.data_overview import load_overview
 
 
 def render():
+    """Data Presentation & Architecture"""
     df = load_overview()
 
-    """Data Presentation & Architecture"""
     st.markdown('<div class="section-title">📊 Data Presentation</div>', unsafe_allow_html=True)
 
     st.markdown("### Dataset Overview")
