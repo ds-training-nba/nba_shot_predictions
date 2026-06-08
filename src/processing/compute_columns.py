@@ -105,13 +105,13 @@ def fill_time_features(df):
     return df
 
 
-def add_player_data(df: pd.DataFrame):
+def add_player_data(df: pd.DataFrame, simulate_year = None):
     """
     Adding personal player information that is generally available and might be handy to make deductions (e.g. high age)
     :param df:
     :return:
     """
-    df_players = pd.read_csv('data/orig/player_data.csv')
+    df_players = player_data_df()
     df = df.merge(df_players, left_on="PLAYER_NAME", right_on="name")
 
     df['GAME_DATE'] = pd.to_datetime(
@@ -119,9 +119,12 @@ def add_player_data(df: pd.DataFrame):
         format='%Y%m%d',
         errors='coerce'
     )
-    df['year'] = df['GAME_DATE'].dt.year
-    df['years_experience'] = df['GAME_DATE'].dt.year - df['year_start']
-    df['player_age'] = df['GAME_DATE'].dt.year - df['birth_date'].apply(lambda val: val[-4:]).astype(float)
+    if simulate_year is None:
+        df['year'] = df['GAME_DATE'].dt.year
+    else:
+        df['year'] = simulate_year
+    df['years_experience'] = df['year'] - df['year_start']
+    df['player_age'] = df['year'] - df['birth_date'].apply(lambda val: val[-4:]).astype(float)
     return df
 def determine_best_age_per_player(df: pd.DataFrame):
     """
@@ -277,3 +280,7 @@ def add_computed_feature_columns(df):
     for func in COMPUTED_FEATURES_FUNCTIONS:
         df = func(df)
     return df
+
+
+def player_data_df():
+    return pd.read_csv('data/orig/player_data.csv')

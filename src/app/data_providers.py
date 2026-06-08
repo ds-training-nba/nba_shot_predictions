@@ -8,7 +8,7 @@ from app.conf.run import RunConfig
 from app.config import TARGET_VARIABLE
 from processing.compute_columns import add_computed_feature_columns, add_is_home_column, add_opponent_interfered_column, \
     add_angle_column, add_shot_main_action_type_column, add_player_data, determine_best_age_per_player, \
-    add_best_age_data, add_last_match_precision, add_last_match_precisions_for_prediction
+    add_best_age_data
 from processing.encoding import encode_for_model
 from processing.filtering import filter_clean_source_columns, filter_pre_encoding_columns, filter_for_players
 from processing.fixes import fix_action_type_target_leak
@@ -133,7 +133,7 @@ def test_train_dataset(add_player_info=False):
         "test": test,
     }
 
-def enrich_with_player_info(train, test):
+def enrich_with_player_info(train, test, simulate_year = None):
     """
     Add player info
     :param train:
@@ -143,7 +143,7 @@ def enrich_with_player_info(train, test):
 
     # enrich with well known facts about the players from another database
     train = add_player_data(train)
-    test = add_player_data(test)
+    test = add_player_data(test, simulate_year) # simulate year only on test/prediction data
     # determine best age from train and add column to test and train
     best_ages = determine_best_age_per_player(train)
     train = add_best_age_data(train, best_ages)
@@ -222,3 +222,4 @@ def split_x_y(df):
     X = df.drop(columns=[TARGET_VARIABLE])
     y = df[TARGET_VARIABLE]
     return X,y
+
