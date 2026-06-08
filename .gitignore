@@ -1,6 +1,7 @@
 
 data/orig/*
 !data/orig/.gitkeep
+!data/orig/player_data.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

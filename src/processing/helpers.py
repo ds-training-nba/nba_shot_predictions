@@ -56,3 +56,6 @@ def filter_false_positives(df_combined):
     positive_predictions_mask = df_combined['Predicted'] > 0.5
     negative_outcome_mask = df_combined['Actual'] == 0
     return df_combined[ positive_predictions_mask & negative_outcome_mask ]
+
+def get_player_id_by_name(df: pd.DataFrame, name):
+    return df[df['PLAYER_NAME'] == name]['PLAYER_ID'].iloc[0]
