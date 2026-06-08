@@ -4,34 +4,32 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 
-from streamlit_includes.data.top_players import load_top_20_players
-from streamlit_includes.data.top_20_dataset import get_top_20_shots
-from streamlit_includes.data.train_data import train_models
+from streamlit_includes.data.load_models import load_metrics, load_splits, load_feature_importance
 
 
 def render():
-
-    df = get_top_20_shots()
 
     st.markdown(
         '<div class="section-title">📉 Model Evaluation & Analysis</div>',
         unsafe_allow_html=True
     )
 
-    # =========================
-    # TRAIN (cached)
-    # =========================
-    with st.spinner("Training ML models..."):
-        models, results_df, roc_data, cm_data, X_train, X_test, y_train, y_test = train_models(df)
+    metrics   = load_metrics()
+    splits    = load_splits()
+    fi_df     = load_feature_importance()
 
-    # =========================
-    # TABS
-    # =========================
-    tab1, tab2, tab3, tab4 = st.tabs([
+    results_df = metrics["results_df"]
+    roc_data   = metrics["roc_data"]
+    cm_data    = metrics["cm_data"]
+    X_test     = splits["X_test"]
+    y_test     = splits["y_test"]
+
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "ROC-AUC",
         "Confusion Matrix",
         "Metrics",
-        "Comparison"
+        "Feature Importance",
+        "Comparison",
     ])
 
     # =========================
@@ -40,51 +38,52 @@ def render():
     with tab1:
         st.markdown("### ROC-AUC Curves (All Models)")
 
-        fig = go.Figure()
+        col1, col2 = st.columns(2)
+        with col1:
+            fig = go.Figure()
+            for model_name, data in roc_data.items():
+                auc = results_df.loc[results_df["Model"] == model_name, "ROC-AUC"].values[0]
+                fig.add_trace(go.Scatter(
+                    x=data["fpr"],
+                    y=data["tpr"],
+                    mode="lines",
+                    name=f"{model_name} (AUC={auc})"
+                ))
 
-        for model_name, data in roc_data.items():
             fig.add_trace(go.Scatter(
-                x=data["fpr"],
-                y=data["tpr"],
+                x=[0, 1],
+                y=[0, 1],
                 mode="lines",
-                name=model_name
+                line=dict(dash="dash", color="gray"),
+                name="Random (AUC=0.5)"
             ))
 
-        fig.add_trace(go.Scatter(
-            x=[0, 1],
-            y=[0, 1],
-            mode="lines",
-            line=dict(dash="dash", color="gray"),
-            name="Random"
-        ))
+            fig.update_layout(
+                height=500, width=800,
+                xaxis_title="False Positive Rate",
+                yaxis_title="True Positive Rate",
+                hovermode="x unified"
+            )
 
-        fig.update_layout(
-            height=500,
-            xaxis_title="False Positive Rate",
-            yaxis_title="True Positive Rate",
-            hovermode="x unified"
-        )
+            st.plotly_chart(fig, use_container_width=False)
 
-        st.plotly_chart(fig, use_container_width=True)
-
-        st.markdown("""
-        **Interpretation:**
-        - Higher curve = better model
-        - XGBoost should dominate in most cases
-        - AUC closer to 1 = stronger discrimination ability
-        """)
+        with col2:
+            st.markdown("""
+            **Interpretation:**
+            - Higher curve = better model
+            - XGBoost should dominate in most cases
+            - AUC closer to 1 = stronger discrimination ability
+            """)
 
     # =========================
     # TAB 2 - CONFUSION MATRIX
     # =========================
     with tab2:
-        st.markdown("### Confusion Matrices - All Models Comparison")
+        st.markdown("### Confusion Matrices — All Models")
 
-        cols = st.columns(len(cm_data))  # 4 модели → 4 колонки
-
+        cols = st.columns(len(cm_data))
         for col, (model_name, cm) in zip(cols, cm_data.items()):
             tn, fp, fn, tp = cm.ravel()
-
             with col:
                 st.markdown(f"#### {model_name}")
 
@@ -100,33 +99,18 @@ def render():
                     texttemplate="%{text}",
                     showscale=False
                 ))
-
-                fig.update_layout(
-                    height=250,
-                    margin=dict(l=10, r=10, t=30, b=10)
-                )
-
+                fig.update_layout(height=250, margin=dict(l=10, r=10, t=30, b=10))
                 st.plotly_chart(fig, use_container_width=True)
 
-                # -------------------------
-                # METRICS
-                # -------------------------
-                accuracy = (tp + tn) / (tp + tn + fp + fn)
+                accuracy  = (tp + tn) / (tp + tn + fp + fn)
                 precision = tp / (tp + fp + 1e-9)
-                recall = tp / (tp + fn + 1e-9)
+                recall    = tp / (tp + fn + 1e-9)
+                f1        = 2 * precision * recall / (precision + recall + 1e-9)
 
-                st.metric("Acc", f"{accuracy:.2f}")
-                st.metric("Prec", f"{precision:.2f}")
-                st.metric("Rec", f"{recall:.2f}")
-
-                st.markdown(
-                    f"""
-                    **TP:** {tp}  
-                    **TN:** {tn}  
-                    **FP:** {fp}  
-                    **FN:** {fn}
-                    """
-                )
+                st.metric("Accuracy",  f"{accuracy:.3f}")
+                st.metric("Precision", f"{precision:.3f}")
+                st.metric("Recall",    f"{recall:.3f}")
+                st.metric("F1",        f"{f1:.3f}")
 
     # =========================
     # TAB 3 - METRICS
@@ -141,38 +125,58 @@ def render():
         )
 
         fig = px.bar(
-            results_df,
-            x="Model",
-            y="ROC-AUC",
+            results_df.sort_values("ROC-AUC", ascending=True),
+            x="ROC-AUC", y="Model",
+            orientation="h",
             color="ROC-AUC",
-            color_continuous_scale="Viridis"
+            color_continuous_scale="Viridis",
+            title="ROC-AUC by Model"
         )
-
-        fig.update_layout(height=450)
-
+        fig.update_layout(height=350)
         st.plotly_chart(fig, use_container_width=True)
 
     # =========================
-    # TAB 4 - COMPARISON
+    # TAB 4 - FEATURE IMPORTANCE
     # =========================
     with tab4:
+        st.markdown("### XGBoost — Feature Importance (Top 20)")
+
+        top20 = fi_df.head(20)
+
+        fig = px.bar(
+            top20.sort_values("importance"),
+            x="importance", y="feature",
+            orientation="h",
+            color="importance",
+            color_continuous_scale="Oranges",
+            title="Top 20 Most Influential Features"
+        )
+        fig.update_layout(height=600)
+        st.plotly_chart(fig, use_container_width=True)
+
+        with st.expander("Full feature importance table"):
+            st.dataframe(fi_df, use_container_width=True, hide_index=True)
+
+    # =========================
+    # TAB 5 - COMPARISON
+    # =========================
+    with tab5:
         st.markdown("### Model Comparison Overview")
 
         fig = px.bar(
             results_df,
             x="Model",
-            y=["ROC-AUC", "Accuracy", "Log Loss"],
-            barmode="group"
+            y=["ROC-AUC", "Accuracy", "F1"],
+            barmode="group",
+            title="Key Metrics — All Models"
         )
-
         fig.update_layout(height=500)
-
         st.plotly_chart(fig, use_container_width=True)
 
         st.markdown("""
         ### Key Insights
-        - XGBoost typically performs best in structured NBA shot data
-        - Random Forest is strong baseline
-        - Logistic Regression gives interpretability
-        - KNN struggles with high-dimensional features
+        - **XGBoost** performs best on structured NBA shot data
+        - **Random Forest** is a strong ensemble baseline
+        - **Logistic Regression** gives interpretability at lower accuracy
+        - **KNN** struggles with high-dimensional one-hot encoded features
         """)
