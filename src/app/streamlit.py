@@ -8,6 +8,7 @@ from datetime import date
 from contextlib import contextmanager
 import time
 
+from alternatives import AlternativesCalculatorPipeline, ThreePointAlternativesCalculator, AlternativesProcessorPipeline
 from app.conf.run import build_best_run_config, MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LIGHT_GBM
 from app.data_providers import full_dataset, prepare_dataset_for_prediction, enrich_with_player_info, \
     test_train_dataset
@@ -239,11 +240,82 @@ def sl_player_app():
     df_alternative['pointsPredicted'] = df_alternative.apply(lambda row: row['SHOT_MADE_FLAG'] * row['points'], axis=1)
 
 
-
-
-
     with timer("enrich 2"):
         df_alternative = sl_enrich_with_player_info(df_alternative, target_year)
     st.dataframe(df_alternative[columns])
     st.text('Alternative player age, calculated in age mode "{}": {}'.format(age_mode, df_alternative['player_age'].iloc[0]))
     st.text('Points predicted by model {}: {:.2f}'.format(model_id, df_alternative['pointsPredicted'].sum()))
+
+def sl_alternatives():
+    return AlternativesCalculatorPipeline(
+        [ThreePointAlternativesCalculator()]
+    )
+
+def sl_alternatives_app():
+    model_id = st.selectbox(
+        "Choose the model",
+        [MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LIGHT_GBM]
+    )
+    df_train_test = sl_app_split_data()
+    df_orig = df_train_test['test']
+    with timer("team options"):
+        team = st.selectbox(
+            "Filter by team (optional)",
+            sl_team_options(df_orig)
+        )
+    with timer("filter by team"):
+        if len(team) > 0:
+            df = sl_filter_by_team(df_orig, team)
+        else:
+            df = df_orig.copy()
+
+    with timer("player options"):
+        player = st.selectbox(
+            "Choose your player",
+            sl_player_options(df)
+        )
+    with timer("filter by player"):
+        df = sl_filter_by_player(df, player)
+
+
+
+    config = build_best_run_config()
+    config.model_config.model_id = model_id
+    with timer("load persisted model "):
+        model = load_persisted_model(model_id)
+
+
+    df['pointsMade'] = df.apply(lambda row: row['SHOT_MADE_FLAG'] * row['points'], axis=1)
+
+    X_enc = sl_prepare_dataset_for_prediction(df, config)
+    y_proba = model.predict_proba(X_enc)
+    df['probability'] = y_proba[:, 1]
+    df['pointsPredicted'] = df.apply(lambda row: row['probability'] * row['points'], axis=1)
+
+
+    st.text('Original points made: {}'.format(df['pointsMade'].sum()))
+    st.text('Points predicted by model {}: {:.2f}'.format(model_id, df['pointsPredicted'].sum()))
+
+
+    ########### Calculating alternatives #############
+    alternatives_calculator = sl_alternatives()
+    alternatives = alternatives_calculator.calculate_alternatives(df)
+    processing_pipeline = AlternativesProcessorPipeline(alternatives)
+    df_old = df.copy()
+    df = processing_pipeline.process(df)
+
+    X_enc = sl_prepare_dataset_for_prediction(df, config)
+    y_proba = model.predict_proba(X_enc)
+    df['probability_alternative'] = y_proba[:, 1]
+    df['pointsPredicted_alternative'] = df.apply(lambda row: row['probability_alternative'] * row['points'], axis=1)
+
+    st.text('Alternative Points predicted by model {}: {:.2f}'.format(model_id, df['pointsPredicted_alternative'].sum()))
+
+    df = df.join(df_old,rsuffix="_old")
+    columns = ['ACTION_TYPE', 'SHOT_DISTANCE', 'SHOT_DISTANCE_old','pointsPredicted', 'pointsPredicted_alternative']
+    for alternative in alternatives:
+        st.subheader(alternative.explanation)
+        df_filtered = df[df["alternatives_explanation"] == alternative.explanation]
+        diff = df_filtered['pointsPredicted_alternative'].sum() - df_filtered['pointsPredicted'].sum()
+        st.dataframe(df_filtered[columns])
+        st.text('"{}" can earn a difference of {:.2f} in {} matches'.format(alternative.explanation, diff, len(df_filtered), df['GAME_DATE'].nunique()))
