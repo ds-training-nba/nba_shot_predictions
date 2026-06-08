@@ -7,21 +7,11 @@ from streamlit_includes.data.top_players import load_top_20_players
 
 @st.cache_data
 def get_top_20_shots():
-    # ds = load_dataset(
-    #     "parquet",
-    #     data_files=\"https://huggingface.co/datasets/ds-training-nba/nba_shot_data/resolve/main/raw_merged/merged_dataset.parquet\"\n",
-    # )\n",
-    # ds = load_dataset(
-    #     "parquet",
-    #     'ds-training-nba/nba_shot_data',
-    #     data_files='data/processed/processed_20_players.parquet'
-    # )
+    """Load data direct from huggingface"""
 
-    ds = load_dataset("ds-training-nba/nba_shot_data")
+    ds = load_dataset(
+        "parquet",
+        data_files="https://huggingface.co/datasets/ds-training-nba/nba_shot_data/resolve/main/processed/processed_20_players.parquet"
+    )
 
-    full = concatenate_datasets([
-        ds["train"],
-        ds["test"]
-    ])
-    return full.to_pandas()
-    # return ds['full'].to_pandas()
+    return ds['train'].to_pandas()
