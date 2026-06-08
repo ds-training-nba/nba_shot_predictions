@@ -19,6 +19,7 @@ def get_selected_page():
             "📉 Model Results & Analysis",
             "🏀 Player Insights",
             "🔍 Top 20 Players Deep Dive",
+            "🎯 Shot Probability Predictor",
             "💡 Conclusions & Recommendations"
         ]
     )

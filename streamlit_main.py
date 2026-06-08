@@ -13,6 +13,7 @@ from streamlit_includes.pages import (
     model_analysis,
     player_insights,
     deep_dive,
+    shot_prediction,
     conclusions
 )
 
@@ -36,6 +37,7 @@ PAGE_MAP = {
     "📉 Model Results & Analysis": model_analysis.render,
     "🏀 Player Insights": player_insights.render,
     "🔍 Top 20 Players Deep Dive": deep_dive.render,
+    "🎯 Shot Probability Predictor": shot_prediction.render,
     "💡 Conclusions & Recommendations": conclusions.render,
 }
 
