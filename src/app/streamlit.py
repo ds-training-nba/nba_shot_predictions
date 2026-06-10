@@ -150,101 +150,109 @@ def sl_get_target_year_for_same_age(player, alternative_player, current_year):
     return current_year + age_diff
 
 def sl_player_app():
-    model_id = st.selectbox(
-        "Choose the model",
-        [MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LIGHT_GBM]
-    )
-    df_orig = sl_app_dataset()
-    with timer("team options"):
-        team = st.selectbox(
-            "Filter by team (optional)",
-            sl_team_options(df_orig)
+    app_id = "player_app"
+
+    col_left, col_right = st.columns([1, 1])
+
+    with col_left:
+        model_id = st.selectbox(
+            "Choose the model",
+            [MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LIGHT_GBM],
+            key=app_id + "_model"
         )
-    with timer("filter by team"):
-        if len(team) > 0:
-            df = sl_filter_by_team(df_orig,team)
-        else:
-            df = df_orig.copy()
+        df_orig = sl_app_dataset()
+        with timer("team options"):
+            team = st.selectbox(
+                "Filter by team (optional)",
+                sl_team_options(df_orig), key=app_id + "_team"
+            )
+        with timer("filter by team"):
+            if len(team) > 0:
+                df = sl_filter_by_team(df_orig,team)
+            else:
+                df = df_orig.copy()
 
-    with timer("player options"):
-        player = st.selectbox(
-            "Choose your player",
-            sl_player_options(df)
+        with timer("player options"):
+            player = st.selectbox(
+                "Choose your player",
+                sl_player_options(df),key=app_id + "_player"
+            )
+        with timer("filter by player"):
+            df = sl_filter_by_player(df, player)
+
+        chosen_date = st.selectbox(
+            "Choose your game date",
+            sl_date_options(df), key=app_id + "_date"
         )
-    with timer("filter by player"):
-        df = sl_filter_by_player(df, player)
+        with timer("filter by date "):
+            df = sl_filter_by_date(df, chosen_date)
 
-    chosen_date = st.selectbox(
-        "Choose your game date",
-        sl_date_options(df)
-    )
-    with timer("filter by date "):
-        df = sl_filter_by_date(df, chosen_date)
-
-    config = build_best_run_config()
-    config.model_config.model_id = model_id
-    with timer("load persisted model "):
-        model = load_persisted_model(model_id)
+        config = build_best_run_config()
+        config.model_config.model_id = model_id
+        with timer("load persisted model "):
+            model = load_persisted_model(model_id)
 
 
-    df['pointsMade'] = df.apply(lambda row: row['SHOT_MADE_FLAG'] * row['points'], axis=1 )
-    columns = ['PLAYER_NAME', 'ACTION_TYPE', 'SHOT_DISTANCE', 'points','pointsPredicted', 'pointsMade']
+        df['pointsMade'] = df.apply(lambda row: row['SHOT_MADE_FLAG'] * row['points'], axis=1 )
+        columns = ['PLAYER_NAME', 'ACTION_TYPE', 'SHOT_DISTANCE', 'points','pointsPredicted', 'pointsMade']
 
 
-    X_enc = sl_prepare_dataset_for_prediction(df, config)
-    with timer("prediction 1"):
-        y_proba = model.predict_proba(X_enc)
+        X_enc = sl_prepare_dataset_for_prediction(df, config)
+        with timer("prediction 1"):
+            y_proba = model.predict_proba(X_enc)
 
-    df['probability'] = y_proba[:,1]
-    df['pointsPredicted'] = df.apply(lambda row: row['probability'] * row['points'], axis=1)
-    with timer("enrich 1"):
-        df = sl_enrich_with_player_info(df)
-    st.dataframe(df[columns])
-    st.text('Player age {}'.format(df['player_age'].iloc[0]))
-    st.text('Original points made: {}'.format(df['pointsMade'].sum()))
-    st.text('Points predicted by model {}: {:.2f}'.format(model_id,df['pointsPredicted'].sum()))
+        df['probability'] = y_proba[:,1]
+        df['pointsPredicted'] = df.apply(lambda row: row['probability'] * row['points'], axis=1)
+        with timer("enrich 1"):
+            df = sl_enrich_with_player_info(df)
+        st.dataframe(df[columns])
+        st.text('Player age {}'.format(df['player_age'].iloc[0]))
+        st.text('Original points made: {}'.format(df['pointsMade'].sum()))
+        st.text('Points predicted by model {}: {:.2f}'.format(model_id,df['pointsPredicted'].sum()))
+
+    with col_right:
+        ##################### Alternative Player ###################################
+        st.header('Alternative Player')
+        alternative_player = st.selectbox(
+            "Choose your alternative player",
+            sl_player_options(df_orig),
+            key=app_id + "_alt_player"
+        )
+        age_mode = st.selectbox(
+            "Choose the mode of age adjustment",
+            ["none", "same age", "today"],
+            key=app_id + "_age_mode"
+        )
+        with timer("filter alternative"):
+            # start with a fresh version of df for original player
+            df_alternative = sl_filter_by_date(sl_filter_by_player(df_orig, player), chosen_date)
+        with timer("switch player on alternative"):
+            df_alternative = sl_switch_player(df_alternative, alternative_player, df_orig)
+        target_year = None
+        if age_mode == "same age":
+            target_year = sl_get_target_year_for_same_age(player, alternative_player, df['year'].iloc[0])
+        if age_mode == "today":
+            # Get the current date
+            current_date = date.today()
+            # Access the year attribute to get the current year
+            current_year = current_date.year
+            target_year = current_year
+        # print(df_alternative.head(20))
+        X_enc = sl_prepare_dataset_for_prediction(df_alternative, config, target_year)
+        with timer("predict 2"):
+            y_proba = model.predict_proba(X_enc)
+
+        # actual points made (for comparison)
+        df_alternative['pointsMade'] = df_alternative.apply(lambda row: row['SHOT_MADE_FLAG'] * row['points'], axis=1)
+        df_alternative['SHOT_MADE_FLAG'] = y_proba[:, 1]
+        df_alternative['pointsPredicted'] = df_alternative.apply(lambda row: row['SHOT_MADE_FLAG'] * row['points'], axis=1)
 
 
-    ##################### Alternative Player ###################################
-    st.header('Alternative Player')
-    alternative_player = st.selectbox(
-        "Choose your alternative player",
-        sl_player_options(df_orig)
-    )
-    age_mode = st.selectbox(
-        "Choose the mode of age adjustment",
-        ["none", "same age", "today"]
-    )
-    with timer("filter alternative"):
-        # start with a fresh version of df for original player
-        df_alternative = sl_filter_by_date(sl_filter_by_player(df_orig, player), chosen_date)
-    with timer("switch player on alternative"):
-        df_alternative = sl_switch_player(df_alternative, alternative_player, df_orig)
-    target_year = None
-    if age_mode == "same age":
-        target_year = sl_get_target_year_for_same_age(player, alternative_player, df['year'].iloc[0])
-    if age_mode == "today":
-        # Get the current date
-        current_date = date.today()
-        # Access the year attribute to get the current year
-        current_year = current_date.year
-        target_year = current_year
-    # print(df_alternative.head(20))
-    X_enc = sl_prepare_dataset_for_prediction(df_alternative, config, target_year)
-    with timer("predict 2"):
-        y_proba = model.predict_proba(X_enc)
-
-    # actual points made (for comparison)
-    df_alternative['pointsMade'] = df_alternative.apply(lambda row: row['SHOT_MADE_FLAG'] * row['points'], axis=1)
-    df_alternative['SHOT_MADE_FLAG'] = y_proba[:, 1]
-    df_alternative['pointsPredicted'] = df_alternative.apply(lambda row: row['SHOT_MADE_FLAG'] * row['points'], axis=1)
-
-
-    with timer("enrich 2"):
-        df_alternative = sl_enrich_with_player_info(df_alternative, target_year)
-    st.dataframe(df_alternative[columns])
-    st.text('Alternative player age, calculated in age mode "{}": {}'.format(age_mode, df_alternative['player_age'].iloc[0]))
-    st.text('Points predicted by model {}: {:.2f}'.format(model_id, df_alternative['pointsPredicted'].sum()))
+        with timer("enrich 2"):
+            df_alternative = sl_enrich_with_player_info(df_alternative, target_year)
+        st.dataframe(df_alternative[columns])
+        st.text('Alternative player age, calculated in age mode "{}": {}'.format(age_mode, df_alternative['player_age'].iloc[0]))
+        st.text('Points predicted by model {}: {:.2f}'.format(model_id, df_alternative['pointsPredicted'].sum()))
 
 def sl_alternatives():
     return AlternativesCalculatorPipeline(
@@ -252,16 +260,19 @@ def sl_alternatives():
     )
 
 def sl_alternatives_app():
+    app_id = "alternatives_app"
     model_id = st.selectbox(
         "Choose the model",
-        [MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LIGHT_GBM]
+        [MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LIGHT_GBM],
+        key=app_id + "_model"
     )
     df_train_test = sl_app_split_data()
     df_orig = df_train_test['test']
     with timer("team options"):
         team = st.selectbox(
             "Filter by team (optional)",
-            sl_team_options(df_orig)
+            sl_team_options(df_orig),
+            key=app_id + "_team"
         )
     with timer("filter by team"):
         if len(team) > 0:
@@ -272,7 +283,8 @@ def sl_alternatives_app():
     with timer("player options"):
         player = st.selectbox(
             "Choose your player",
-            sl_player_options(df)
+            sl_player_options(df),
+            key=app_id + "_player"
         )
     with timer("filter by player"):
         df = sl_filter_by_player(df, player)
@@ -318,4 +330,4 @@ def sl_alternatives_app():
         df_filtered = df[df["alternatives_explanation"] == alternative.explanation]
         diff = df_filtered['pointsPredicted_alternative'].sum() - df_filtered['pointsPredicted'].sum()
         st.dataframe(df_filtered[columns])
-        st.text('"{}" can earn a difference of {:.2f} in {} matches'.format(alternative.explanation, diff, len(df_filtered), df['GAME_DATE'].nunique()))
+        st.text('"{}" can earn a difference of {:.2f} points in {} matches'.format(alternative.explanation, diff, len(df_filtered), df['GAME_DATE'].nunique()))

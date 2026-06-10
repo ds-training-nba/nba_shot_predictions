@@ -1,5 +1,34 @@
 import streamlit as st
+from streamlit_includes.pages import (
+    introduction,
+    data_presentation,
+    preprocessing,
+    data_analysis,
+    feature_engineering,
+    model_development,
+    model_analysis,
+    trajectory_data,
+    player_insights,
+    deep_dive,
+    shot_prediction,
+    coach_app,
+    conclusions
+)
 
+PAGE_MAP = {
+    "🎯 Introduction & Problem": introduction.render,
+    "📊 Data Presentation": data_presentation.render,
+    "🔧 Data Preprocessing": preprocessing.render,
+    "📈 Data Analysis & Visualization": data_analysis.render,
+    "⚡ Feature Engineering": feature_engineering.render,
+    "🎓 Model Development": model_development.render,
+    "📉 Model Results & Analysis": model_analysis.render,
+    "🔧 Trajectory data": trajectory_data.render,
+    "🏀 Player Insights": player_insights.render,
+    "🔍 Top 20 Players Deep Dive": deep_dive.render,
+    "🎯 Demo: The Coach App": coach_app.render,
+    "💡 Conclusions & Recommendations": conclusions.render,
+}
 
 def get_selected_page():
 
@@ -9,18 +38,5 @@ def get_selected_page():
 
     return st.sidebar.radio(
         "Navigate Project Sections:",
-        [
-            "🎯 Introduction & Problem",
-            "📊 Data Presentation",
-            "🔧 Data Preprocessing",
-            "📈 Data Analysis & Visualization",
-            "⚡ Feature Engineering",
-            "🎓 Model Development",
-            "📉 Model Results & Analysis",
-            "🔧 Trajectory data",
-            "🏀 Player Insights",
-            "🔍 Top 20 Players Deep Dive",
-            "🎯 Shot Probability Predictor",
-            "💡 Conclusions & Recommendations"
-        ]
+        list(PAGE_MAP.keys())
     )
