@@ -172,6 +172,9 @@ def sl_player_app():
             else:
                 df = df_orig.copy()
 
+    col_left, col_right = st.columns([1, 1])
+    with col_left:
+        st.header('Original Player')
         with timer("player options"):
             player = st.selectbox(
                 "Choose your player",

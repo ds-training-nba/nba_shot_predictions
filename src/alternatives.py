@@ -63,7 +63,7 @@ class ThreePointAlternativesCalculator(AlternativesCalculator):
         self.min_distance = min_distance
     def calculate_alternatives(self, df: pd.DataFrame)->list[Alternative]:
         alternatives = []
-        text = "Step back to earn more points"
+        text = "Step behind 3pt line to earn more points"
         params = []
         for i, row in df.iterrows():
             if row['SHOT_DISTANCE'] < 23 and row['SHOT_DISTANCE'] > self.min_distance:

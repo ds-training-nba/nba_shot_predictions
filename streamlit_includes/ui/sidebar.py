@@ -20,14 +20,14 @@ PAGE_MAP = {
     "📊 Data Presentation": data_presentation.render,
     "🔧 Data Preprocessing": preprocessing.render,
     "📈 Data Analysis & Visualization": data_analysis.render,
+    "🏀 Player Insights": player_insights.render,
+    "🔍 Top 20 Players Deep Dive": deep_dive.render,
     "⚡ Feature Engineering": feature_engineering.render,
     "🎓 Model Development": model_development.render,
     "📉 Model Results & Analysis": model_analysis.render,
-    "🔧 Trajectory data": trajectory_data.render,
-    "🏀 Player Insights": player_insights.render,
-    "🔍 Top 20 Players Deep Dive": deep_dive.render,
     "🎯 Demo: The Coach App": coach_app.render,
     "💡 Conclusions & Recommendations": conclusions.render,
+    "🔧 Trajectory data": trajectory_data.render,
 }
 
 def get_selected_page():
