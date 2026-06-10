@@ -63,32 +63,56 @@ def render():
         The biggest potential for improvements seemed to be to add additional features to better represent the game situation.
 
         The goal of this dataset is to capture information that is not fully represented by standard play-by-play features, such as:
+                    
+        ##### Why Tracking Data?
 
-        - defender/attacker positioning
-        - offensive spacing
-        - player movement before the shot
-        - ball position
-        - closeout behavior
-        - screen and help-defense situations
+        Traditional shot data usually contains:
+        """)
+        st.info("""
+        - shot distance
+        - shot angle
+        - shot type
+        - player
+        - game context
+        """)
 
+        st.markdown("""
+
+        Tracking data adds spatial and temporal context:
+        """)
+        st.info("""
+        - how close the defender is
+        - whether the defender is closing out
+        - how teammates are spaced
+        - whether the shooter is moving
+        - whether multiple defenders are near the shooter
+        """)
+
+        st.markdown("""            
         ---
 
         #### Available Tracking Data
 
-        The trajectory data consists of SportVU data of the **2015/2016 NBA season** (Last season data was publicly available)
+        The trajectory data consists of **SportVU data** of the **2015/2016 NBA season** (Last season data was publicly available)
                     
-        SportVU: Optical player tracking system, to cature spatial coordinates of all players (x/y) and the ball (x/y/z).
+        SportVU: **Optical player tracking system**, to cature **spatial coordinates of all players** (x/y) and the ball (x/y/z).
                     
-        Data is available in a frequency of 25 Hz
-                    
-        Improvements:
-        - high frequency data (25 Hz) of the whole game situation, also before/after shot
-        - player positions of all players, not just the shooter
+        Data is available in a frequency of **25 Hz**
+        """)
+
+        st.info("""            
+        **Improvements**:
+        - high frequency data (25 Hz) of the whole game situation
+        - positions of all players, not just the shooter
         - player movements
-        Limitations:
+                    
+        **Limitations**:
         - Only one season
         - Not all shots (e.g. no free throws)
 
+        """)
+
+        st.markdown("""
         ---
 
         #### Basic Format
@@ -96,14 +120,14 @@ def render():
         ##### File Structure
                     
         Avalailable Data:
-        - 1 json File per game with tracking data of all plays
-        - 1 csv File per game with tabular play-by-play data (same as in original dataset)
-        - 1 csv File with shotdetails (same as in original dataset) + exact shot times 
-            - shot time was calculated by dataset creator via the time of highest ball acceleration
+        - **1 json File per game** with tracking data of all plays
+        - **1 csv File per game** with tabular **play-by-play** data (same as in original dataset)
+        - **1 csv File** with shotdetails (same as in original dataset) + **exact shot times**
+            - (shot time was calculated by dataset creator via the time of highest ball acceleration)
                     
         ##### Data structure   
 
-        A game event consists of some player information (ids, names, position) and a list of tracking moments (sampled in 25 Hz)
+        A **game event** consists of some player information (ids, names, position) and a list of **tracking moments** (sampled in 25 Hz)
                     
         A raw tracking moment contains:
 
@@ -126,67 +150,14 @@ def render():
         Each entity contains coordinates:
 
         ```python
-        ball = [team_id, player_id, x, y, z]
+        ball = [x, y, z]
         player = [team_id, player_id, x, y, z]
         ```
 
         For the model, we transform the raw tracking data into a structured tabular representation.
 
-        ---
-
-        #### Why Tracking Data?
-
-        Traditional shot data usually contains:
-
-        - shot distance
-        - shot angle
-        - shot type
-        - player
-        - game context
-
-        Tracking data adds spatial and temporal context:
-
-        - how close the defender is
-        - whether the defender is closing out
-        - how teammates are spaced
-        - whether the shooter is moving
-        - whether multiple defenders are near the shooter
+        
         """)
-
-        st.markdown("### Example: Tracking Feature Groups")
-
-        feature_groups = pd.DataFrame({
-            "Feature group": [
-                "Shooter position",
-                "Defender positions",
-                "Teammate positions",
-                "Ball position",
-                "Spatial features",
-                "Temporal features"
-            ],
-            "Example columns": [
-                "shooter_x_t0, shooter_y_t0",
-                "defender1_dx_t0, defender1_dy_t0, defender1_dist_t0",
-                "attacker1_dx_t0, attacker1_dy_t0, attacker1_dist_t0",
-                "ball_x, ball_y, ball_z",
-                "nearest_defender_dist, offensive_spacing, players_in_paint",
-                "t0, t1, t2, t3, t4, t5"
-            ],
-            "Description": [
-                "Location of the shooter at each frame",
-                "Defenders ordered by distance to shooter at shot release",
-                "Teammates ordered by distance to shooter at shot release",
-                "Ball location and height",
-                "Hand-engineered basketball context features",
-                "Movement information across the second before the shot"
-            ]
-        })
-
-        st.dataframe(
-            feature_groups,
-            use_container_width=True,
-            hide_index=True
-        )
 
     # -----------------------------------------------
     # TAB 2: PREPROCESSING + FEATURE ENGINEERING
@@ -202,15 +173,15 @@ def render():
 
         #### a. Match Shot Events to Tracking Moments
 
-        For each shot event, we search for tracking moments around the shot timestamp.
+        For each shot event, we search for tracking moments around the **shot timestamp**.
 
-        We use a one-second window before the shot to capture movement leading into the shot.
+        We use a **one-second window** before the shot to capture movement leading into the shot.
 
         ---
 
         #### b. Normalize to half court coordinates
 
-        All shots are normalized to one half court so that the offensive team is attacking the same basket.
+        All shots are **normalized to one half court** so that the offensive team is attacking the same basket.
 
         ```python
         if x < 47:
@@ -245,9 +216,9 @@ def render():
 
         We therefore define a stable representation:
 
-        - shooter is stored separately
-        - defenders are ordered by distance to the shooter at the shot frame
-        - teammates are ordered by distance to the shooter at the shot frame
+        - **shooter** is stored separately
+        - **defenders** are **ordered by distance** to the shooter at the shot frame
+        - **teammates** are **ordered by distance** to the shooter at the shot frame
 
         Example:
 
@@ -274,7 +245,7 @@ def render():
         dist = sqrt(dx² + dy²)
         ```
 
-        The intention is to hel the model learn basketball-relevant spatial relationships instead of absolute court positions only.
+        The intention is to help the model learn basketball-relevant spatial relationships instead of absolute court positions only.
 
         ---
 
@@ -289,12 +260,12 @@ def render():
         defender1_dx_t{i}
         defender1_dy_t{i}
         defender1_dist_t{i}
-
         ...
 
         attacker1_dx_t{i}
         attacker1_dy_t{i}
         attacker1_dist_t{i}
+        ...
         ```
 
         for all six frames:
@@ -307,20 +278,25 @@ def render():
 
         ### 2. Additional Feature generation
 
-        Besides raw trajectory features, we also use engineered basketball features such as:
+        Besides raw trajectory features, we also use **engineered basketball features** such as:
 
-        - shot angle
-        - distance to basket
-        - nearest defender distance
-        - average defender distance
-        - number of defenders within 3 / 5 / 7 feet
-        - defender closing speed
-            - computed via change in coordinates over the 1 second window
-        - indicator whether defenders are in a line between shooter and basket
-        - indicator whether a teammate is screening
-        - number of players in the paint
-        - nearest teammate distance
-        - shooter speed
+        - Spatial features:
+            - shooter speed
+            - shot angle
+            - distance to basket
+            - number of players in the paint
+        - Defender features:
+            - nearest defender distance
+            - average defender distance
+            - number of defenders within 3 / 5 / 7 feet
+            - defender closing speed
+            - indicator whether defenders are in a line between shooter and basket
+        - Attacker features:
+            - indicator whether a teammate is screening
+            - nearest teammate distance
+        - Other features:
+            - Main action type
+            - Period
 
         These features provide strong basketball priors and help the model learn from limited tracking data.
         """)
@@ -363,6 +339,18 @@ def render():
             hide_index=True
         )
 
+        st.markdown("""
+            #### Data Amount
+            Since we only have one season the data amount is a bit limited
+            **With top 20 players:**
+            - 8149 rows
+            
+            **With all players:**
+            - 57510 rows
+                     
+            We therefore, mainly trained on all players for this dataset
+        """)
+
     # -----------------------------------------------
     # TAB 3: MODELS + RESULTS
     # -----------------------------------------------
@@ -394,7 +382,7 @@ def render():
 
         #### Classical Machine Learning: XGBoost on Shot-Frame Features
 
-        The first baseline model uses only features from the shot frame. And computed speeds over the 1 second window
+        The first baseline model uses only features from the shot frame. And computed speeds over the 1 second window.
         """)
 
         with st.expander("**Selected features**", expanded=False):
@@ -413,7 +401,7 @@ def render():
         """)
         st.dataframe(pd.DataFrame({
             'Parameters:': ['n_estimators', 'max_depth', 'learning_rate', 'subsample', 'min_child_weight', 'gamma', 'eval_metric'],
-            'values': [500, 3, 0.01, 0.7, 1, 0, "logloss"],
+            'values': ["500", "3", "0.01", "0.7", "1", "0", "logloss"],
         }))
 
         st.markdown("""
@@ -485,25 +473,53 @@ def render():
 
         ---
 
-        #### Interpretation of Results
+        ## Interpretation of Results
+                    
+        #### Comparison of feature sets
+        
+        **First test:** Comparison of different feature sets using the XgBoost model
+                
+        Three feature sets were tested here (**only for top 20 players**)
+        - **Set1**: Only new trajectory features
+        - **Set2**: Only features from original dataset
+        - **Set3**: Combination of both
+                    
+        """)
 
-        Initial experiments show that:
+        df_setComp = pd.DataFrame({
+            'Feature Set': ['Set 1', 'Set 2', 'Set 3'],
+            'Accuracy': [0.55, 0.60, 0.60],
+            'ROC-AUC': [0.5797, 0.6156, 0.6141],
+            'Brier Score': [0.2458, 0.2347, 0.2379],
+        })
+        df_setComp = df_setComp.set_index('Feature Set')
+
+        st.dataframe(df_setComp)
+
+        st.markdown("""   
+        
+        Experiments show that:
 
         - shot type and player identity are very strong predictors
         - tracking data adds some spatial context
         - predicting individual shot outcomes remains noisy
-        - probability calibration is more important than raw accuracy
 
-        A major takeaway is that much of shot prediction is driven by high-level shot context, while tracking features are most useful for analyzing shot quality within similar shot types.
+        #### Comparison of models
+
+        Comparison of the different models on all players.
+                    
+        Tested models:
+        - Simple Lookup Table
+        - XgBoost model
+        - Neural Network
+                
         """)
-
-        st.markdown("### Model Comparison")
 
         model_results = pd.DataFrame({
             "Model": [
                 "Lookup table",
                 "XGBoost",
-                "Neural network"
+                "Neural Network"
             ],
             "Accuracy": [
                 0.61,

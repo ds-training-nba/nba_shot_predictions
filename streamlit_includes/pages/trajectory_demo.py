@@ -13,7 +13,9 @@ from PIL import Image, ImageDraw
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 sys.path.insert(0, os.path.join(project_root, "src"))
 from processing.compute_columns import add_shot_main_action_type_column
+from processing.filtering import filter_for_players
 
+from streamlit_includes.data.helpers_trajectory_demo import recompute_additional_features
 
 # --------------------------------------------------------------------
 # CONFIG
@@ -80,6 +82,8 @@ def load_model_and_artifacts():
 def load_examples():
     df = pd.read_parquet(os.path.join(ARTIFACT_DIR, "example_shots.parquet") )
     df = add_shot_main_action_type_column(df)
+    df = filter_for_players(df)
+    df = df.loc[df['MAIN_ACTION_TYPE'] != 'Dunk']
 
     return df
 
@@ -324,6 +328,8 @@ def update_row_from_all_positions(row, all_positions):
         if positions_by_frame:
             modified_row = update_row_from_player_trajectory(modified_row, player, positions_by_frame)
 
+    modified_row = recompute_additional_features(modified_row)
+
     return modified_row
 
 
@@ -352,9 +358,40 @@ def predict_probability(row, model, scaler, player_to_idx, action_to_idx, contin
     return float(prob)
 
 
+
 # ----------------------------------------------
 # SESSION STATE
 # ----------------------------------------------
+
+@st.cache_data
+def get_player_options(shots_df):
+    player_df = (
+        shots_df[["PLAYER_ID", "PLAYER_NAME"]]
+        .drop_duplicates()
+        .sort_values("PLAYER_NAME")
+        .reset_index(drop=True)
+    )
+    return player_df
+
+@st.cache_data
+def get_action_options(shots_df):
+    main_actions = shots_df["MAIN_ACTION_TYPE"].sort_values().unique().tolist()
+    main_actions.append('Dunk')
+    return main_actions
+
+def update_row_metadata(row, player_id=None, player_name=None, action_type=None):
+    row = row.copy()
+
+    if player_id is not None:
+        row["PLAYER_ID"] = player_id
+
+    if player_name is not None:
+        row["PLAYER_NAME"] = player_name
+
+    if action_type is not None:
+        row["MAIN_ACTION_TYPE"] = action_type
+
+    return row
 
 def _state_key(prefix, key):
     return f"{prefix}_{key}"
@@ -367,6 +404,10 @@ def initialize_demo_state(prefix, shot_idx, base_row, base_proba):
     st.session_state[_state_key(prefix, "canvas_version")] = 0
     st.session_state[_state_key(prefix, "base_proba")] = base_proba
     st.session_state[_state_key(prefix, "proba")] = base_proba
+
+    st.session_state[_state_key(prefix, "selected_player_id")] = base_row["PLAYER_ID"]
+    st.session_state[_state_key(prefix, "selected_player_name")] = base_row["PLAYER_NAME"]
+    st.session_state[_state_key(prefix, "selected_action_type")] = base_row["MAIN_ACTION_TYPE"]
 
 
 # ----------------------------------------------
@@ -421,6 +462,7 @@ def render(prefix="trajectory_demo"):
     if need_init:
         base_proba = predict_probability(base_row, model, scaler, player_to_idx, action_to_idx, continuous_features)
         initialize_demo_state(prefix, shot_idx, base_row, base_proba)
+        st.rerun() 
 
     if st.button("Reset positions", key=_state_key(prefix, "reset_button")):
         base_row_state = st.session_state[_state_key(prefix, "base_row")].copy()
@@ -428,7 +470,17 @@ def render(prefix="trajectory_demo"):
 
         st.session_state[_state_key(prefix, "current_row")] = base_row_state
         st.session_state[_state_key(prefix, "proba")] = base_proba
-        st.session_state[_state_key(prefix, "canvas_version")] = 0
+        st.session_state[_state_key(prefix, "canvas_version")] += 1
+
+        st.session_state[_state_key(prefix, "selected_player_id")] = base_row_state["PLAYER_ID"]
+        st.session_state[_state_key(prefix, "selected_player_name")] = base_row_state["PLAYER_NAME"]
+        st.session_state[_state_key(prefix, "selected_action_type")] = base_row_state["MAIN_ACTION_TYPE"]
+
+        if _state_key(prefix, "player_dropdown") in st.session_state:
+            st.session_state[_state_key(prefix, "player_dropdown")] = base_row_state["PLAYER_NAME"]
+        if _state_key(prefix, "action_dropdown") in st.session_state:
+            st.session_state[_state_key(prefix, "action_dropdown")] = base_row_state["MAIN_ACTION_TYPE"] 
+
         st.rerun()
 
     current_row = st.session_state[_state_key(prefix, "current_row")].copy()
@@ -451,6 +503,7 @@ def render(prefix="trajectory_demo"):
 
     with left_col:
         st.subheader("Editing full trajectory")
+        st.write(shot_idx)
         st.caption("Drag any circle for t0–t5. Darker circles are closer to the shot frame.")
         num_frames = 6
 
@@ -489,6 +542,13 @@ def render(prefix="trajectory_demo"):
 
             st.session_state[_state_key(prefix, "current_row")] = modified_row.copy()
 
+            modified_row = update_row_metadata(
+                    modified_row,
+                    player_id=st.session_state[_state_key(prefix, "selected_player_id")],
+                    player_name=st.session_state[_state_key(prefix, "selected_player_name")],
+                    action_type=st.session_state[_state_key(prefix, "selected_action_type")],
+            )
+
             st.session_state[_state_key(prefix, "proba")] = predict_probability(
                 modified_row,
                 model,
@@ -524,11 +584,56 @@ def render(prefix="trajectory_demo"):
 
         st.markdown("---")
 
+        st.subheader("Editable inputs")
+
+        player_options_df = get_player_options(shots_df)
+        action_options = get_action_options(shots_df)
+
+        current_row = st.session_state[_state_key(prefix, "current_row")]
+
+        current_player_id = current_row["PLAYER_ID"]
+        current_action_type = current_row["MAIN_ACTION_TYPE"]
+
+        # Find current player index
+        player_ids = player_options_df["PLAYER_ID"].tolist()
+        player_index = player_ids.index(current_player_id)
+
+        selected_player_label = st.selectbox(
+            "Shooter",
+            options=player_options_df['PLAYER_NAME'].values,
+            index=player_index,
+            #format_func=lambda idx: (
+            #    f"{player_options_df.loc[idx, 'PLAYER_NAME']} "
+            #    f"({player_options_df.loc[idx, 'PLAYER_ID']})"
+            #),
+            key=_state_key(prefix, "player_dropdown"),
+        )
+
+        selected_player_id = player_options_df.loc[player_options_df["PLAYER_NAME"] == selected_player_label, "PLAYER_ID"].values[0]
+        selected_player_name = player_options_df.loc[player_options_df["PLAYER_NAME"] == selected_player_label, "PLAYER_NAME"].values[0]
+
+        # Find current action index
+        action_index = action_options.index(current_action_type)
+
+        selected_action_type = st.selectbox(
+            "Main action type",
+            options=action_options,
+            index=action_index,
+            key=_state_key(prefix, "action_dropdown"),
+        )
+
+        # If metadata changed -> update session state
+        if selected_player_id != current_row["PLAYER_ID"] or selected_action_type != current_row["MAIN_ACTION_TYPE"]:
+            st.session_state[_state_key(prefix, "selected_player_id")] = selected_player_id
+            st.session_state[_state_key(prefix, "selected_player_name")] = selected_player_name
+            st.session_state[_state_key(prefix, "selected_action_type")] = selected_action_type
+
+        # -----------------------------
+        # Info Dataframe
+        # -----------------------------
         st.subheader("Shot information")
 
         info_cols = [
-            "PLAYER_NAME",
-            "MAIN_ACTION_TYPE",
             "SHOT_TYPE",
             "SHOT_DISTANCE",
             "SHOT_ZONE_BASIC",
@@ -537,8 +642,6 @@ def render(prefix="trajectory_demo"):
             "SECONDS_REMAINING",
             "SHOT_MADE_FLAG",
         ]
-
-        current_row = st.session_state[_state_key(prefix, "current_row")]
 
         existing_info_cols = [
             col for col in info_cols
