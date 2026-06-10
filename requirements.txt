@@ -12,3 +12,4 @@ lightgbm
 shap
 tensorflow
 xgboost
+streamlit_drawable_canvas
