@@ -1,7 +1,7 @@
 import pandas as pd
 import copy
 
-from app.conf.run import build_default_run_config, MODEL_ID_LIGHT_GBM,
+from app.conf.run import build_default_run_config, MODEL_ID_LIGHT_GBM
 from app.experiments import run_experiment, load_runs_to_dataframe, experiment_current_path
 
 # comparing the use of different player related data
