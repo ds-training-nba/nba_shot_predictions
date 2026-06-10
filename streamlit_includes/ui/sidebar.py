@@ -17,6 +17,7 @@ def get_selected_page():
             "⚡ Feature Engineering",
             "🎓 Model Development",
             "📉 Model Results & Analysis",
+            "🔧 Trajectory data",
             "🏀 Player Insights",
             "🔍 Top 20 Players Deep Dive",
             "💡 Conclusions & Recommendations"

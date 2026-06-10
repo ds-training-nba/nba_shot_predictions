@@ -11,11 +11,12 @@ from streamlit_includes.pages import (
     feature_engineering,
     model_development,
     model_analysis,
+    trajectory_data,
     player_insights,
     deep_dive,
     conclusions
 )
-
+ 
 st.set_page_config(
     page_title="NBA Shot Analysis - Top 20 Players",
     page_icon="🏀",
@@ -34,6 +35,7 @@ PAGE_MAP = {
     "⚡ Feature Engineering": feature_engineering.render,
     "🎓 Model Development": model_development.render,
     "📉 Model Results & Analysis": model_analysis.render,
+    "🔧 Trajectory data": trajectory_data.render,
     "🏀 Player Insights": player_insights.render,
     "🔍 Top 20 Players Deep Dive": deep_dive.render,
     "💡 Conclusions & Recommendations": conclusions.render,
