@@ -18,10 +18,10 @@ def build_action_type(df):
 
     df["ACTION_TYPE_CLEAN"] = df["MAIN_ACTION_TYPE"]
 
-    # Free Throw отдельно
+    # Free Throw separate
     df.loc[is_ft, "ACTION_TYPE_CLEAN"] = "Free Throw"
 
-    # остальные Other остаются Other
+    # Remove Free Throw from Other
     df.loc[
         (df["MAIN_ACTION_TYPE"] == "Other") & (~is_ft),
         "ACTION_TYPE_CLEAN"
@@ -44,7 +44,7 @@ def render():
     red = "#e74c3c"
 
     # =========================================================
-    # TAB 1 — OVERVIEW (оставляем как есть)
+    # TAB 1 — OVERVIEW
     # =========================================================
     tab1, tab2 = st.tabs([
         "Overview",
@@ -91,7 +91,7 @@ def render():
         st.dataframe(player_stats, use_container_width=True)
 
     # =========================================================
-    # TAB 2 — PLAYER ANALYSIS (ВСЁ ОБЪЕДИНЕНО)
+    # TAB 2 — PLAYER ANALYSIS
     # =========================================================
     with tab2:
         st.markdown("### Player Analysis")
@@ -104,7 +104,7 @@ def render():
         col1, col2, col3, col4 = st.columns(4)
 
         # =====================================================
-        # SHOT PROFILE (как было)
+        # SHOT PROFILE
         # =====================================================
         with col1:
             data = d.groupby("SHOT_TYPE").agg(
@@ -253,7 +253,7 @@ def render():
             st.plotly_chart(fig, use_container_width=True)
 
         # =====================================================
-        # GAME CONTEXT (как было)
+        # GAME CONTEXT
         # =====================================================
         st.markdown("### Game Context Impact")
 
@@ -320,7 +320,7 @@ def render():
             st.plotly_chart(fig, use_container_width=True)
 
         # =====================================================
-        # SPATIAL ANALYSIS (как было)
+        # SPATIAL ANALYSIS
         # =====================================================
         st.markdown("### Spatial Shot Analysis")
 
