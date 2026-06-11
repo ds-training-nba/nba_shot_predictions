@@ -20,7 +20,8 @@ def render():
         #### 1. NBA shot prediction has its intrinsic difficulties
         - **Accurate data** on how the game and especially defender situation was is **hard** to get 
         - There is a high amount of **noise** in the target data
-    
+        - Even adding additional tracking features does not decrease the high amount of noise
+     
         #### 2. Quantitative metrics gain little for complex ML models
         - XGBoost achieves only 2% better accuracy and a brier score difference of 0.008 than a **simple baseline model**
         - Nevertheless, a complex XGBoost model might help **better in making decisions**, because it recognizes connections,
