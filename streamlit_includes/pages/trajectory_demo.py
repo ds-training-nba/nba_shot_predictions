@@ -503,7 +503,6 @@ def render(prefix="trajectory_demo"):
 
     with left_col:
         st.subheader("Editing full trajectory")
-        st.write(shot_idx)
         st.caption("Drag any circle for t0–t5. Darker circles are closer to the shot frame.")
         num_frames = 6
 
