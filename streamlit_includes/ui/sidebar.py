@@ -26,8 +26,8 @@ PAGE_MAP = {
     "🎓 Model Development": model_development.render,
     "📉 Model Results & Analysis": model_analysis.render,
     "🎯 Demo: The Coach App": coach_app.render,
-    "💡 Conclusions & Recommendations": conclusions.render,
     "🔧 Trajectory data": trajectory_data.render,
+    "💡 Conclusions & Recommendations": conclusions.render,
 }
 
 def get_selected_page():
