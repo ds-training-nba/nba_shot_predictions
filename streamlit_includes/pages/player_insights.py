@@ -1,116 +1,363 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as go
 import plotly.express as px
+import plotly.graph_objects as go
 
 from streamlit_includes.data.top_players import load_top_20_players
 from streamlit_includes.data.top_20_dataset import get_top_20_shots
 
 
+def build_action_type(df):
+    df = df.copy()
+
+    is_ft = (
+        (df["MAIN_ACTION_TYPE"] == "Other") &
+        (df["ACTION_TYPE"] == "Free Throw")
+    )
+
+    df["ACTION_TYPE_CLEAN"] = df["MAIN_ACTION_TYPE"]
+
+    # Free Throw отдельно
+    df.loc[is_ft, "ACTION_TYPE_CLEAN"] = "Free Throw"
+
+    # остальные Other остаются Other
+    df.loc[
+        (df["MAIN_ACTION_TYPE"] == "Other") & (~is_ft),
+        "ACTION_TYPE_CLEAN"
+    ] = "Other"
+
+    return df
 
 
 def render():
-    """Player Insights Page"""
-    st.markdown('<div class="section-title">🏀 Player Insights & Shooting Patterns</div>',
-                unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-title">🏀 Player Insights & Shooting Patterns</div>',
+        unsafe_allow_html=True
+    )
 
     df = get_top_20_shots()
     players = load_top_20_players()
+    colors = px.colors.qualitative.Set2
 
-    tab1, tab2, tab3 = st.tabs(["Overall Rankings", "Shot Type Efficiency", "Game Situation Analysis"])
+    green = "#2ecc71"
+    red = "#e74c3c"
+
+    # =========================================================
+    # TAB 1 — OVERVIEW (оставляем как есть)
+    # =========================================================
+    tab1, tab2 = st.tabs([
+        "Overview",
+        "Player Analysis"
+    ])
 
     with tab1:
-        st.markdown("### Top 20 Players - Overall Shooting Efficiency")
+        st.markdown("### Top Players Overview")
 
-        player_stats = []
-        for player in players:
-            player_data = df[df['PLAYER_NAME'] == player]
-            fg_pct = player_data['SHOT_MADE_FLAG'].mean() * 100
-            total_shots = len(player_data)
+        player_stats = df.groupby("PLAYER_NAME").agg(
+            FG_pct=("SHOT_MADE_FLAG", lambda x: x.mean() * 100),
+            total_shots=("SHOT_MADE_FLAG", "count"),
+            points=("points", "sum"),
+        ).reset_index()
 
-            player_stats.append({
-                'Player': player,
-                'FG%': round(fg_pct, 1),
-                'Total Shots': total_shots,
-                'Made': int(player_data['SHOT_MADE_FLAG'].sum()),
-                'Missed': int((1 - player_data['SHOT_MADE_FLAG']).sum())
-            })
-
-        df_stats = pd.DataFrame(player_stats).sort_values('FG%', ascending=False)
-
-        fig = px.bar(df_stats, x='FG%', y='Player',
-                     title='Field Goal Percentage by Player',
-                     orientation='h',
-                     color='FG%',
-                     color_continuous_scale='Viridis')
-
-        fig.update_layout(
-            height=800
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-
-    with tab2:
-        st.markdown("### Efficiency by Shot Type")
-
-        selected_player = st.selectbox("Select a player:", players)
-        player_data = df[df['PLAYER_NAME'] == selected_player]
-
-        shot_efficiency = []
-        for shot_type in ['1PT Free Throw', '2PT Field Goal', '3PT Field Goal']:
-            type_data = player_data[player_data['SHOT_TYPE'] == shot_type]
-            if len(type_data) > 0:
-                fg_pct = type_data['SHOT_MADE_FLAG'].mean() * 100
-                attempts = len(type_data)
-                made = int(type_data['SHOT_MADE_FLAG'].sum())
-
-                shot_efficiency.append({
-                    'Shot Type': shot_type,
-                    'FG%': round(fg_pct, 1),
-                    'Attempts': attempts,
-                    'Made': made
-                })
-
-        col1, col2 = st.columns([1.5, 1])
-
-        with col1:
-            df_efficiency = pd.DataFrame(shot_efficiency)
-            fig = px.bar(df_efficiency, x='Shot Type', y='FG%',
-                         title=f'{selected_player} - Efficiency by Shot Type',
-                         color='FG%',
-                         color_continuous_scale='RdYlGn')
-            st.plotly_chart(fig, use_container_width=True)
-
-        with col2:
-            st.dataframe(df_efficiency, use_container_width=True, hide_index=True)
-
-    with tab3:
-        st.markdown("### Impact of Game Situations on Player Performance")
-
-        selected_player = st.selectbox("Select player for situation analysis:", players, key='player2')
-        player_data = df[df['PLAYER_NAME'] == selected_player]
+        player_stats = player_stats[player_stats["PLAYER_NAME"].isin(players)]
+        player_stats = player_stats.sort_values("FG_pct", ascending=False)
 
         col1, col2 = st.columns(2)
 
         with col1:
-            # Home vs Away
-            home_away = player_data.groupby('IS_HOME')['SHOT_MADE_FLAG'].mean() * 100
-
-            fig = px.bar(x=home_away.index, y=home_away.values,
-                         title=f'{selected_player} - Home vs Away',
-                         labels={'x': 'Situation', 'y': 'FG%'},
-                         color=home_away.values,
-                         color_continuous_scale='RdYlGn')
+            fig = px.bar(
+                player_stats,
+                x="FG_pct",
+                y="PLAYER_NAME",
+                orientation="h",
+                color="FG_pct",
+                color_continuous_scale="Viridis",
+                title="FG% by Player"
+            )
             st.plotly_chart(fig, use_container_width=True)
 
         with col2:
-            # Clutch vs Normal
-            clutch_away = player_data.groupby('IsClutchTime')['SHOT_MADE_FLAG'].mean() * 100
+            fig = px.scatter(
+                player_stats,
+                x="total_shots",
+                y="FG_pct",
+                size="points",
+                hover_name="PLAYER_NAME",
+                title="Efficiency vs Volume"
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
-            fig = px.bar(x=['Normal', 'Clutch'], y=clutch_away.values,
-                         title=f'{selected_player} - Clutch Performance',
-                         labels={'x': 'Time', 'y': 'FG%'},
-                         color=clutch_away.values,
-                         color_continuous_scale='RdYlGn')
+        st.dataframe(player_stats, use_container_width=True)
+
+    # =========================================================
+    # TAB 2 — PLAYER ANALYSIS (ВСЁ ОБЪЕДИНЕНО)
+    # =========================================================
+    with tab2:
+        st.markdown("### Player Analysis")
+
+        player = st.selectbox("Select player", players)
+
+        d = df[df["PLAYER_NAME"] == player].copy()
+        d = build_action_type(d)
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        # =====================================================
+        # SHOT PROFILE (как было)
+        # =====================================================
+        with col1:
+            data = d.groupby("SHOT_TYPE").agg(
+                fg_pct=("SHOT_MADE_FLAG", "mean"),
+                volume=("SHOT_MADE_FLAG", "count")
+            ).reset_index()
+
+            data["fg_pct"] *= 100
+
+            fig = go.Figure()
+
+            fig.add_trace(go.Bar(
+                x=data["SHOT_TYPE"],
+                y=data["fg_pct"],
+                name="FG%",
+                marker_color=colors[:len(data)]
+            ))
+
+            fig.add_trace(go.Scatter(
+                x=data["SHOT_TYPE"],
+                y=data["volume"],
+                name="Volume",
+                mode="lines+markers",
+                yaxis="y2",
+                line=dict(color=red)
+            ))
+
+            fig.update_layout(
+                title="Shot Type FG% + Volume",
+                yaxis=dict(title="FG%"),
+                yaxis2=dict(title="Volume", overlaying="y", side="right"),
+                showlegend=False
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+        with col2:
+            data = d.groupby("ACTION_TYPE_CLEAN").agg(
+                fg_pct=("SHOT_MADE_FLAG", "mean"),
+                volume=("SHOT_MADE_FLAG", "count")
+            ).reset_index()
+
+            data["fg_pct"] *= 100
+
+            fig = go.Figure()
+
+            fig.add_trace(go.Bar(
+                x=data["ACTION_TYPE_CLEAN"],
+                y=data["fg_pct"],
+                name="FG%",
+                marker_color=colors[:len(data)]
+            ))
+
+            fig.add_trace(go.Scatter(
+                x=data["ACTION_TYPE_CLEAN"],
+                y=data["volume"],
+                name="Volume",
+                mode="lines+markers",
+                yaxis="y2",
+                line=dict(color=red)
+            ))
+
+            fig.update_layout(
+                title="Action Type FG% + Volume",
+                yaxis=dict(title="FG%"),
+                yaxis2=dict(title="Volume", overlaying="y", side="right"),
+                showlegend=False
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+        with col3:
+            data = d.groupby("SHOT_ZONE_BASIC").agg(
+                fg_pct=("SHOT_MADE_FLAG", "mean"),
+                volume=("SHOT_MADE_FLAG", "count")
+            ).reset_index()
+
+            data["fg_pct"] *= 100
+
+            fig = go.Figure()
+
+            fig.add_trace(go.Bar(
+                x=data["SHOT_ZONE_BASIC"],
+                y=data["fg_pct"],
+                name="FG%",
+                marker_color=colors[:len(data)]
+            ))
+
+            fig.add_trace(go.Scatter(
+                x=data["SHOT_ZONE_BASIC"],
+                y=data["volume"],
+                name="Volume",
+                mode="lines+markers",
+                yaxis="y2",
+                line=dict(color=red)
+            ))
+
+            fig.update_layout(
+                title="Shot Zone FG% + Volume",
+                yaxis=dict(title="FG%"),
+                yaxis2=dict(title="Volume", overlaying="y", side="right"),
+                showlegend=False
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+        with col4:
+            d["DIST_RANGE_CLEAN"] = d["SHOT_ZONE_RANGE"]
+
+            is_ft = (
+                    (d["MAIN_ACTION_TYPE"] == "Other") &
+                    (d["ACTION_TYPE"] == "Free Throw")
+            )
+
+            d.loc[is_ft, "DIST_RANGE_CLEAN"] = "Free Throw"
+
+            data = d.groupby("DIST_RANGE_CLEAN").agg(
+                fg_pct=("SHOT_MADE_FLAG", "mean"),
+                volume=("SHOT_MADE_FLAG", "count")
+            ).reset_index()
+
+            data["fg_pct"] *= 100
+
+            fig = go.Figure()
+
+            fig.add_trace(go.Bar(
+                x=data["DIST_RANGE_CLEAN"],
+                y=data["fg_pct"],
+                name="FG%",
+                marker_color=colors[:len(data)]
+            ))
+
+            fig.add_trace(go.Scatter(
+                x=data["DIST_RANGE_CLEAN"],
+                y=data["volume"],
+                name="Volume",
+                mode="lines+markers",
+                yaxis="y2",
+                line=dict(color=red)
+            ))
+
+            fig.update_layout(
+                title="Distance Range FG% + Volume",
+                yaxis=dict(title="FG%"),
+                yaxis2=dict(title="Volume", overlaying="y", side="right"),
+                showlegend=False
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+        # =====================================================
+        # GAME CONTEXT (как было)
+        # =====================================================
+        st.markdown("### Game Context Impact")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            home_away = d.groupby("IS_HOME")["SHOT_MADE_FLAG"].mean() * 100
+
+            fig = go.Figure()
+
+            fig.add_bar(
+                x=["Home"],
+                y=[home_away.loc[1]],
+                marker_color=green
+            )
+
+            fig.add_bar(
+                x=["Away"],
+                y=[home_away.loc[0]],
+                marker_color=red
+            )
+
+            fig.update_layout(title="Home vs Away FG%", showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
+
+        with col2:
+            clutch = d.groupby("IsClutchTime")["SHOT_MADE_FLAG"].mean() * 100
+
+            fig = go.Figure()
+
+            fig.add_bar(
+                x=["Normal"],
+                y=[clutch.loc[0]],
+                marker_color=green
+            )
+
+            fig.add_bar(
+                x=["Clutch"],
+                y=[clutch.loc[1]],
+                marker_color=red
+            )
+
+            fig.update_layout(title="Clutch vs Normal FG%", showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
+
+        with col3:
+            ot = d.groupby("IsOvertime")["SHOT_MADE_FLAG"].mean() * 100
+
+            fig = go.Figure()
+
+            fig.add_bar(
+                x=["Regular"],
+                y=[ot.loc[0]],
+                marker_color=green
+            )
+
+            fig.add_bar(
+                x=["Overtime"],
+                y=[ot.loc[1]],
+                marker_color=red
+            )
+
+            fig.update_layout(title="Regular vs Overtime FG%", showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
+
+        # =====================================================
+        # SPATIAL ANALYSIS (как было)
+        # =====================================================
+        st.markdown("### Spatial Shot Analysis")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            fig = px.scatter(
+                d,
+                x="LOC_X",
+                y="LOC_Y",
+                color="SHOT_MADE_FLAG",
+                color_discrete_map={0: red, 1: green},
+                opacity=0.5,
+                title="Shot Chart"
+            )
+
+            fig.update_layout(height=800)
+            st.plotly_chart(fig, use_container_width=True)
+
+        with col2:
+            d = d.copy()
+
+            d["ANGLE_SECTOR_BIN"] = pd.cut(
+                d["ANGLE"],
+                bins=[0, 45, 95, 135, 180],
+                labels=["0°–±45°", "±45°–±95°", "±95°–±135°", ">±135°"]
+            )
+
+            angle = d.groupby("ANGLE_SECTOR_BIN")["SHOT_MADE_FLAG"].mean() * 100
+
+            fig = px.bar(
+                x=angle.index,
+                y=angle.values,
+                title="FG% by Angle Sector",
+                color=[green if i < 2 else red for i in range(len(angle))]
+            )
+
+            fig.update_layout(showlegend=False)
+
             st.plotly_chart(fig, use_container_width=True)
