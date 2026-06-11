@@ -69,7 +69,7 @@ def render():
 
         # 3PT line
         fig.add_vline(
-            x=23.75,
+            x=22,
             line_width=2,
             line_dash="dash",
             line_color="green",
