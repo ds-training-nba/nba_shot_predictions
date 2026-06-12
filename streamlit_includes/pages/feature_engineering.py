@@ -20,6 +20,7 @@ def render():
         - `SHOT_TYPE`: 1pt/2pt/3pt category
         - `SHOT_DISTANCE`: euclidean distance in ft
         - `PLAYER_NAME`: The acting player category
+        - `is_playoffs`: is the game a playoff game
         
         ### Engineered Features 
 

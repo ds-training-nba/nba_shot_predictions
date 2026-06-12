@@ -90,9 +90,9 @@ def sl_app_dataset():
     return full_dataset()
 
 @st.cache_data
-def sl_app_split_data():
+def sl_app_split_data(add_player_data = True):
     print("Cache miss test/train")
-    return test_train_dataset()
+    return test_train_dataset(add_player_data)
 
 def sl_team_options(df):
     options =  list(df['PLAYER1_TEAM_ABBREVIATION'].unique())
@@ -117,15 +117,14 @@ def sl_filter_by_date(df, date):
 def sl_prepare_dataset_for_prediction(df, config, simulate_year = None):
     # get cache training data
     ds = sl_app_split_data()
-
-    df_train, df = enrich_with_player_info(ds['train'],df, simulate_year)
+    df_train, df = enrich_with_player_info(ds['train'],df, simulate_year, process_train=False)
 
     return prepare_dataset_for_prediction(df, config, df_train)
 
 def sl_enrich_with_player_info(df, simulate_year = None):
     # get cached split dataset
     split_data = sl_app_split_data()
-    _, df = enrich_with_player_info(split_data['train'], df, simulate_year)
+    _, df = enrich_with_player_info(split_data['train'], df, simulate_year, process_train=False)
     return df
 
 def sl_switch_player(df: pd.DataFrame, alternative_player_name:str, df_orig: pd.DataFrame):
@@ -157,7 +156,7 @@ def sl_player_app():
     with col_left:
         model_id = st.selectbox(
             "Choose the model",
-            [MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LIGHT_GBM],
+            [MODEL_ID_LIGHT_GBM, MODEL_ID_SIMPLE_LOOKUP],
             key=app_id + "_model"
         )
         df_orig = sl_app_dataset()
@@ -199,8 +198,8 @@ def sl_player_app():
         df['pointsMade'] = df.apply(lambda row: row['SHOT_MADE_FLAG'] * row['points'], axis=1 )
         columns = ['PLAYER_NAME', 'ACTION_TYPE', 'SHOT_DISTANCE', 'points','pointsPredicted', 'pointsMade']
 
-
-        X_enc = sl_prepare_dataset_for_prediction(df, config)
+        with timer("prepare for prediction 1"):
+            X_enc = sl_prepare_dataset_for_prediction(df, config)
         with timer("prediction 1"):
             y_proba = model.predict_proba(X_enc)
 
@@ -241,7 +240,8 @@ def sl_player_app():
             current_year = current_date.year
             target_year = current_year
         # print(df_alternative.head(20))
-        X_enc = sl_prepare_dataset_for_prediction(df_alternative, config, target_year)
+        with timer("prepare for prediction 2"):
+            X_enc = sl_prepare_dataset_for_prediction(df_alternative, config, target_year)
         with timer("predict 2"):
             y_proba = model.predict_proba(X_enc)
 
@@ -266,10 +266,10 @@ def sl_alternatives_app():
     app_id = "alternatives_app"
     model_id = st.selectbox(
         "Choose the model",
-        [MODEL_ID_SIMPLE_LOOKUP, MODEL_ID_LIGHT_GBM],
+        [MODEL_ID_LIGHT_GBM, MODEL_ID_SIMPLE_LOOKUP],
         key=app_id + "_model"
     )
-    df_train_test = sl_app_split_data()
+    df_train_test = sl_app_split_data(False)
     df_orig = df_train_test['test']
     with timer("team options"):
         team = st.selectbox(

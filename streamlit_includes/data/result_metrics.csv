@@ -1,3 +1,7 @@
 Model,Accuracy,ROC-AUC, Brier
 Lookup Table,0.665, 0.709, 0.211
 LightGBM,0.680, 0.733, 0.203
+Random Forest, 0.663, 0.713, 0.216
+Logistic Regression, 0.664, 0.718, 0.210
+Decision Tree, 0.672, 0.720, 0.208
+

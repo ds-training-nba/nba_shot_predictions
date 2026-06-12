@@ -43,32 +43,27 @@ def render():
 
     with tab2:
         st.markdown("""
-        ### Training Pipeline Architecture
+        ### Training Pipeline Architecture (Particularities)
 
-        ```
-        1. Data Preparation
+       
+        #### Data Preparation
            Test/Train Split: Grouped Split by Games (80/20) (No temporal split taken into account for our use case)
 
-        2. Preprocessing
-           Encoding according to model demands: 
-           - One Hot only when needed
-           - Std Scaled only for Logistic regression
+        #### Encoding according to model demands: 
+        - One Hot (except XGBoost)
+        - std scale (LogisticRegression only)
 
-        3. Hyperparameter Search
-           3-Fold RandomizedSearchCV because of big amount of data and hyperparameter space. Metric: neg_brier_score
 
-        4. Model Training
-           - Model Instantiation
-           - Hyperparameter Tuning
-           - Evaluation on Test Set
+        #### Hyperparameter Search
+        - 3-Fold RandomizedSearchCV because of big amount of data and hyperparameter space. 
+        - Metric: neg_brier_score
 
-        5. Final Evaluation
-           - Confusion Matrix
-           - ROC-AUC
-           - brier score (decomposition)
-           - classification_report
-           - json file logging
-        ```
+
+        #### Final Evaluation
+        - brier score (decomposition)
+        - ROC-AUC
+        - accuracy
+        - (others got logged)
         """)
 
 

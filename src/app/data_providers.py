@@ -1,5 +1,7 @@
 # imports of 3rd party packages
 import dataclasses
+from contextlib import contextmanager
+import time
 from datasets import load_dataset
 import pandas as pd
 
@@ -132,8 +134,12 @@ def test_train_dataset(add_player_info=False):
         "train": train,
         "test": test,
     }
-
-def enrich_with_player_info(train, test, simulate_year = None):
+@contextmanager
+def timer(name):
+    start = time.perf_counter()
+    yield
+    print(f"{name}: {time.perf_counter() - start:.2f}s")
+def enrich_with_player_info(train, test, simulate_year = None, process_train = True):
     """
     Add player info
     :param train:
@@ -142,11 +148,13 @@ def enrich_with_player_info(train, test, simulate_year = None):
     """
 
     # enrich with well known facts about the players from another database
-    train = add_player_data(train)
+    if process_train:
+        train = add_player_data(train)
     test = add_player_data(test, simulate_year) # simulate year only on test/prediction data
     # determine best age from train and add column to test and train
     best_ages = determine_best_age_per_player(train)
-    train = add_best_age_data(train, best_ages)
+    if process_train:
+        train = add_best_age_data(train, best_ages)
     test = add_best_age_data(test, best_ages)
 
     # last match precision is unused and might make problems when running in alternative prediction apps.
